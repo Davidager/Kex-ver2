@@ -101,11 +101,14 @@ public class ReadText {
         }
         for(int i = 0; i < 9015; i++) //9015
         nextFrame();
-        
-        string path = @"C:\Users\David\Documents\GitHub\Kex\Database\MyTest.txt";
+
+        string desktopPath = Environment.GetFolderPath(
+                         System.Environment.SpecialFolder.DesktopDirectory);
+
+        string path = desktopPath + @"\MyTest.txt";
         File.WriteAllText(path, sb.ToString());
         
-        string xmlPath = @"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt";
+        string xmlPath = desktopPath + @"\xmlTest.txt"; ;
         SaveData.save(xmlPath, SaveData.exampleContainer);
     }
 

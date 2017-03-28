@@ -1,14 +1,4 @@
-<<<<<<< HEAD
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class MatchingFunctions {
-
-	
-}
-=======
-﻿using System;
+﻿/*using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -145,4 +135,4 @@ public float Average(float[] floatArray)
     result = result / floatArray.Length;
     return result;
 }
->>>>>>> origin/master
+*/

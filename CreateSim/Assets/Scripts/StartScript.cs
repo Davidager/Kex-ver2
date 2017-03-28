@@ -6,6 +6,10 @@ public class StartScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        if (!ProtoBuf.Meta.RuntimeTypeModel.Default.IsDefined(typeof(Vector2)))
+        {
+            ProtoBuf.Meta.RuntimeTypeModel.Default.Add(typeof(Vector2), false).Add("x", "y");
+        }
         ReadDatabase.readDatabase();
         Debug.Log("End of code; finished");
 	}

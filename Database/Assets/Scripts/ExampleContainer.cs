@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Xml.Serialization;
+using ProtoBuf;
+using System;
 
-[XmlRoot("ExampleCollection")]
-public class ExampleContainer {
-    [XmlArray("Examples")]
-    [XmlArrayItem("Example")]
+[Serializable]
+[ProtoContract]
+public class ExampleContainer
+{
+    [ProtoMember(1)]
     public List<ExampleData> examples = new List<ExampleData>();
-	
+
 }

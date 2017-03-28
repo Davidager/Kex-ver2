@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;   // tömma agentlistor osv
 using System;
 using System.Xml.Serialization;
+using ProtoBuf;
 
 public class Example {
     private float[] subjPosArray;
@@ -167,7 +168,7 @@ public class Example {
 
 
 
-        data.examples.Add(frameData);
+        data.frames.Add(frameData);
     }
 
     public void endCurrentExample()
@@ -208,7 +209,7 @@ public class Example {
         // skapar en ny ExampleData där endast agents med influence över CUTOFF får vara med.
         ExampleData updatedData = new ExampleData();
         updatedData.exampleNumber = data.exampleNumber;
-        foreach (FrameData framedata in data.examples)
+        foreach (FrameData framedata in data.frames)
         {
             FrameData updatedFrameData = new FrameData();
             updatedFrameData.frameNumber = framedata.frameNumber;
@@ -220,7 +221,7 @@ public class Example {
                     updatedFrameData.jAgents.Add(jAgent);
                 }
             }
-            updatedData.examples.Add(updatedFrameData);
+            updatedData.frames.Add(updatedFrameData);
         }
 
         foreach (KeyValuePair<int, float> e in maxInfluenceTable)
@@ -242,54 +243,64 @@ public class Example {
 
 
 }
-
+[Serializable]
+[ProtoContract]
 public class ExampleData
 {
-    [XmlAttribute("exampleNumber")]
+    [ProtoMember(1)]
     public int exampleNumber;
 
-    [XmlArray("Frames")]
-    [XmlArrayItem("Frame")]
-    public List<FrameData> examples = new List<FrameData>();
+    [ProtoMember(2)]
+    public List<FrameData> frames = new List<FrameData>();
 
-    [XmlArray("InfluenceFunctions")]
-    [XmlArrayItem("InfluenceFunction")]
+    [ProtoMember(3)]
     public List<XmlInfluenceFunction> influenceFunctions = new List<XmlInfluenceFunction>();
 }
 
+[Serializable]
+[ProtoContract]
 public class FrameData
 {
-    [XmlAttribute("frameNumber")]
+    [ProtoMember(1)]
     public int frameNumber;
 
-    [XmlElement("Subject")]
+    [ProtoMember(2)]
     public XmlAgent subject;
 
-    [XmlArray("jAgents")]
-    [XmlArrayItem("jAgent")]
+    [ProtoMember(3)]
     public List<XmlAgent> jAgents = new List<XmlAgent>();
 }
 
+[Serializable]
+[ProtoContract]
 public class XmlInfluenceFunction
 {
-    [XmlAttribute("jAgentIndex")]
+    [ProtoMember(1)]
     public int jAgentIndex;
 
-    [XmlElement("Value")]
+    [ProtoMember(2)]
     public float value;
 }
 
+[Serializable]
+[ProtoContract]
 public class XmlAgent
 {
-    [XmlAttribute("agentIndex")]
+    [ProtoMember(1)]
     public int agenteIndex;
 
-    [XmlElement("LocalPosition")]
-    public Vector2 localPosition; 
+    [ProtoMember(2)]
+    public Vector2 localPosition;
 
-    [XmlElement("Direction")]
+    /*[ProtoMember(2)]
+    public float localX;
+
+    [ProtoMember(3)]
+    public float localZ;*/
+
+    [ProtoMember(4)]
     public float direction;
 
-    [XmlElement("Speed")]
+    [ProtoMember(5)]
     public float speed;
 }
