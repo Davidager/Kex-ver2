@@ -1,0 +1,32 @@
+2 Februari:
+      uppdatera kexplanering innan möte 1430 torsdag den 2:a feb
+
+      KLAR: presentera research-question (frågeställning) jämförelser - kolla i mailet christopher 
+
+      \qquad KLAR: skickade efter bra frågeställningar
+
+      KLAR: punkta upp processen för hur vi gjorde recreate video in 3d-simulation (~halv sida)
+
+      KLAR: korta ner evaluation - ska besvara research question
+
+      KLAR: Limitations passer inte i evaluation
+
+      Återskapa crowds by example artikeln (istället för vad som nu står i method) (kanske teori?):
+
+      \qquad    http://onlinelibrary.wiley.com/doi/10.1111/j.1467-8659.2007.01089.x/full
+
+      KLAR: Uppdatera method med det som vi faktiskt ska göra
+
+      (kollat på, kanske irrelevant?)Kolla på D. helbings grejer, Christopher sade att det var väldigt relevant för oss (social forces)
+      \\ \\
+      FRÅGOR:
+      Hur mycket kan vi fråga författarna av crowds by example om? All kod? :D Vi kanske inte kan punkta upp allt vi kommer behöva veta eftersom att det kommer dyka upp frågor för oss under tiden vi försöker implementera simuleringarna. Kan man fråga mer allmänt om en massa extra information angående artikeln? Den är ju dock 10 år gammal.
+
+      Ska vi fokusera på att implementera example-based simulation först? Delmål? Ändra Gantt-chart?
+
+8 Februari:
+      KLART Ändra om schemat till task 1 / 1.1 \\
+      KLART mail chris \\
+      KLART mail lerner\\
+      KLART *viktig*definiera prototyperna tydligt, p1 p2 p3...  \\
+      KLART p2 ska vara database \\
