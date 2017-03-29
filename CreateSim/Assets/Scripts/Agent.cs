@@ -18,10 +18,12 @@ public class Agent : MonoBehaviour
 
     private Vector3 targetPos;
 
-    private LinkedList<float> xCoordList;
-    private LinkedList<float> zCoordList;
-    private LinkedList<float> speedList;
-    private LinkedList<float> directionList;
+    public Configuration lastConfiguration;
+
+    public List<float> xCoordList;
+    public List<float> zCoordList;
+    public List<float> speedList;
+    public List<float> directionList;
     private int updateCounter;
     private float yHeightCoord;
     private int currentTargetFrame;
@@ -37,10 +39,10 @@ public class Agent : MonoBehaviour
         noseRadius = 0.69f;
         yHeightCoord = 0.2f;
 
-        xCoordList = new LinkedList<float>();
-        zCoordList = new LinkedList<float>();
-        speedList = new LinkedList<float>();
-        directionList = new LinkedList<float>();
+        xCoordList = new List<float>();
+        zCoordList = new List<float>();
+        speedList = new List<float>();
+        directionList = new List<float>();
         setStartValues();
         startSpline();
 
@@ -61,9 +63,8 @@ public class Agent : MonoBehaviour
         // controlPointNumber++;
         // float dist = Vector3.Distance(targetPos, movingSplineTransform.position);
         // speed = dist / ((currentTargetFrame - frameCounter));
-        //CreateSimulation.assignTrajectory(this, agentNumber);
-                
-        
+
+        CreateSimulation.assignTrajectory(this, agentNumber);
         moveSpline();
         
 
@@ -79,10 +80,10 @@ public class Agent : MonoBehaviour
     {
         Random random = new Random();
 
-        xCoordList.AddLast(Random.Range(-3.5f, 3.5f));
-        zCoordList.AddLast(Random.Range(-3f, 2.25f));
-        speedList.AddLast(Random.Range(0.015f, 0.03f));
-        directionList.AddLast(Random.Range(0f, 2 * Mathf.PI));
+        xCoordList.Add(Random.Range(-3.5f, 3.5f));
+        zCoordList.Add(Random.Range(-3f, 2.25f));
+        speedList.Add(Random.Range(0.015f, 0.03f));
+        directionList.Add(Random.Range(0f, 2 * Mathf.PI));
     }
 
     public void setAgentNumber(int agentNumber)
@@ -97,10 +98,10 @@ public class Agent : MonoBehaviour
 
     public void addToTrajectory(float xCoord, float yCoord, float speed, float direction)
     {
-        xCoordList.AddLast(xCoord);
-        zCoordList.AddLast(yCoord);
-        speedList.AddLast(speed);
-        directionList.AddLast(direction);
+        xCoordList.Add(xCoord);
+        zCoordList.Add(yCoord);
+        speedList.Add(speed);
+        directionList.Add(direction);
     }
 
     private void startSpline ()
@@ -109,8 +110,8 @@ public class Agent : MonoBehaviour
         float startz = Random.Range(-3f, 2.25f);
         */
 
-        float startx = xCoordList.First.Value;
-        float startz = zCoordList.First.Value;
+        float startx = xCoordList[0];
+        float startz = zCoordList[0];
 
         Vector3 startPosition = new Vector3(startx, yHeightCoord, startz);
         movingSpline = Instantiate(CylinderPre, startPosition, Quaternion.identity);
@@ -119,7 +120,7 @@ public class Agent : MonoBehaviour
         nose = Instantiate(Nose, Vector3.zero, Quaternion.identity);
         noseTransform = nose.transform;
         noseTransform.parent = movingSplineTransform;
-        changeLookingDirection(directionList.First.Value);
+        changeLookingDirection(directionList[0]);
         
 
         

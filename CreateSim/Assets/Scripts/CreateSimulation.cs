@@ -7,16 +7,18 @@ using System.Text;
 using System.Xml;
 
 
-public class CreateSimulation : MonoBehaviour{
-    /*
+public class CreateSimulation {
+    
 
     private Dictionary<int, float> affinityTable;
     private float matchingCUTOFF = new float{};
-    private Dictionary<int, Agent> activeAgentTable;
+    private static Dictionary<int, Agent> activeAgentTable;
+    private Configuration[] exampleConfigurations;
+    private static Configuration currentQueryConfiguration = null;
 
-    void Start()
+    public CreateSimulation(ExampleContainer exampleContainer)
     {
-        createExampleConfigurations();
+        exampleConfigurations = createExampleConfigurations(exampleContainer);
         activeAgentTable = new Dictionary<int, Agent>();
         for (int i = 0; i < 10; i++)
         {
@@ -31,6 +33,7 @@ public class CreateSimulation : MonoBehaviour{
         {
             if (agent.getUpdateCounter() > 14)
             {
+                currentQueryConfiguration = createQueryConf(agentNumber);
                 float matchingValue = matchingFunction(agentArray, subjectIdentifier);
                 // use matching function to compare current configuration with the configuration when the last trajectory was assigned
                 if (matchingValue < matchingCUTOFF)
@@ -43,8 +46,6 @@ public class CreateSimulation : MonoBehaviour{
             updateTrajectory(agent);
         }
     }
-
-    private void create
 
     private static void updateTrajectory(Agent Agentj){
 
@@ -115,12 +116,110 @@ public class CreateSimulation : MonoBehaviour{
 
     }
 
-	void Update()
+    private static Configuration createQueryConf(int agentNumber)
     {
-        // Låter assigntrajectory ske i Agents updatefunktion istället!
-        /*foreach (Agent agent in agentArray)
+        Vector2 tempVector;
+        float tempDirection;
+        Agent subjectAgent = activeAgentTable[agentNumber];
+        Vector2 newOrigin = new Vector2(subjectAgent.xCoordList[0], subjectAgent.zCoordList[0]);
+        float originDirection = subjectAgent.directionList[0];
+
+        Configuration retConf = new Configuration();
+        int j = 0;
+        retConf.infAgentArray = new ComparatorAgent[activeAgentTable.Count - 1];
+        foreach (KeyValuePair<int, Agent> e in activeAgentTable)
         {
-            assignTrajectory(agent);
+            ComparatorAgent tempComparatorAgent = new ComparatorAgent();
+            for (int i = 0; i < e.Value.xCoordList.Count; i++)
+            {
+                tempVector = new Vector2(e.Value.xCoordList[i], e.Value.zCoordList[i]);
+                tempVector = globalToLocalVector2(tempVector, newOrigin, originDirection);
+                tempDirection = e.Value.directionList[i];
+                tempDirection = globalToLocalDirection(tempDirection, originDirection);
+
+                tempComparatorAgent.addToTrajectory(tempVector.x, tempVector.y, 
+                    e.Value.speedList[i], tempDirection);
+            }
+
+            if (e.Key != agentNumber)
+            {
+                retConf.infAgentArray[j] = tempComparatorAgent;
+                j++;
+            } else
+            {
+                retConf.subAgent = tempComparatorAgent;
+            }
         }
-    }*/
+
+        retConf.fillAndCalcInfluences();
+        return retConf;
+    }
+
+    private Configuration[] createExampleConfigurations(ExampleContainer exampleContainer)
+    {
+        Configuration[] returnArray = new Configuration[exampleContainer.examples.Count];
+        int i = 0;
+        foreach (ExampleData exampleData in exampleContainer.examples)
+        {
+            returnArray[i] = new Configuration();
+            ComparatorAgent subAgent = new ComparatorAgent();
+            ComparatorAgent[] infAgentArray = new ComparatorAgent[exampleData.frames[0].jAgents.Count];
+            float[] influenceValues = new float[infAgentArray.Length];
+            int k = 0;
+            foreach (InfluenceValue infValue in exampleData.influenceValues)
+            {
+                influenceValues[k] = infValue.value;
+                k++;
+            }
+
+            for (int temp = 0; temp < infAgentArray.Length; temp++)
+            {
+                infAgentArray[temp] = new ComparatorAgent();
+            }
+            foreach (FrameData frameData in exampleData.frames)
+            {
+                subAgent.addToTrajectory(frameData.subject.localPosition.x,
+                    frameData.subject.localPosition.y, frameData.subject.speed,
+                    frameData.subject.direction);
+                int j = 0;
+                foreach (agentData jAgent in frameData.jAgents)
+                {
+                    infAgentArray[j].addToTrajectory(jAgent.localPosition.x,
+                        jAgent.localPosition.y, jAgent.speed, jAgent.direction);
+                    j++;
+                }
+                
+            } 
+
+
+            returnArray[i].subAgent = subAgent;
+            returnArray[i].infAgentArray = infAgentArray;
+            returnArray[i].influenceValues = influenceValues;
+            i++;
+        }
+
+        return returnArray;
+    }
+
+    private static Vector2 globalToLocalVector2(Vector2 position, Vector2 newOrigin, float originDirection)
+    {
+        Vector2 retvec = new Vector2(position.x - newOrigin.x, position.y - newOrigin.y);
+        retvec = Quaternion.Euler(new Vector3(0, 0, (originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * retvec;
+        return retvec;
+    }
+
+    private static float globalToLocalDirection(float direction, float originDirection)
+    {
+        direction = direction - originDirection + Mathf.PI / 2;
+        if (direction < 0) direction = direction + 2 * Mathf.PI;
+        return direction;
+    }
+
+
+    // Låter assigntrajectory ske i Agents updatefunktion istället!
+    /*foreach (Agent agent in agentArray)
+    {
+        assignTrajectory(agent);
+    }
+}*/
 }

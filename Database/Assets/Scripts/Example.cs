@@ -142,8 +142,8 @@ public class Example {
     {
         FrameData frameData = new FrameData();
         frameData.frameNumber = frameNumber;
-        frameData.subject = new XmlAgent();
-        frameData.subject.agenteIndex = exampleSpline.splineNumber;
+        frameData.subject = new AgentData();
+        frameData.subject.agentNumber = exampleSpline.splineNumber;
         frameData.subject.localPosition = globalToLocalVector2
             (new Vector2(currentixCoord, currentizCoord));
         frameData.subject.direction = globalToLocalDirection(iDirection);
@@ -151,8 +151,8 @@ public class Example {
 
         for (int i = 0; i < jPosList.Count; i = i + 2)
         {
-            XmlAgent newjAgent = new XmlAgent();
-            newjAgent.agenteIndex = jSplineNumber[i / 2];
+            AgentData newjAgent = new AgentData();
+            newjAgent.agentNumber = jSplineNumber[i / 2];
             newjAgent.localPosition = globalToLocalVector2
                 (new Vector2(jPosList[i], jPosList[i + 1]));
             newjAgent.direction = globalToLocalDirection(jDirection[i / 2]);
@@ -214,9 +214,9 @@ public class Example {
             FrameData updatedFrameData = new FrameData();
             updatedFrameData.frameNumber = framedata.frameNumber;
             updatedFrameData.subject = framedata.subject;
-            foreach (XmlAgent jAgent in framedata.jAgents)
+            foreach (AgentData jAgent in framedata.jAgents)
             {
-                if (maxInfluenceTable.ContainsKey(jAgent.agenteIndex))
+                if (maxInfluenceTable.ContainsKey(jAgent.agentNumber))
                 {
                     updatedFrameData.jAgents.Add(jAgent);
                 }
@@ -226,15 +226,15 @@ public class Example {
 
         foreach (KeyValuePair<int, float> e in maxInfluenceTable)
         {
-            XmlInfluenceFunction newInfFunc = new XmlInfluenceFunction();
-            newInfFunc.jAgentIndex = e.Key;
+            InfluenceValue newInfFunc = new InfluenceValue();
+            newInfFunc.jAgentNumber = e.Key;
             newInfFunc.value = finalInfluencetable[e.Key];
 
-            updatedData.influenceFunctions.Add(newInfFunc);
+            updatedData.influenceValues.Add(newInfFunc);
         }
 
         //SaveData.addExampleData(data);        den gamla sparningen, som inte görs nu när vi har uppdaterat.
-        if (!(updatedData.influenceFunctions.Count==0))
+        if (!(updatedData.influenceValues.Count==0))
         {
             SaveData.addExampleData(updatedData);
         }
@@ -255,7 +255,7 @@ public class ExampleData
     public List<FrameData> frames = new List<FrameData>();
 
     [ProtoMember(3)]
-    public List<XmlInfluenceFunction> influenceFunctions = new List<XmlInfluenceFunction>();
+    public List<InfluenceValue> influenceValues = new List<InfluenceValue>();
 }
 
 [Serializable]
@@ -266,18 +266,18 @@ public class FrameData
     public int frameNumber;
 
     [ProtoMember(2)]
-    public XmlAgent subject;
+    public AgentData subject;
 
     [ProtoMember(3)]
-    public List<XmlAgent> jAgents = new List<XmlAgent>();
+    public List<AgentData> jAgents = new List<AgentData>();
 }
 
 [Serializable]
 [ProtoContract]
-public class XmlInfluenceFunction
+public class InfluenceValue
 {
     [ProtoMember(1)]
-    public int jAgentIndex;
+    public int jAgentNumber;
 
     [ProtoMember(2)]
     public float value;
@@ -285,10 +285,10 @@ public class XmlInfluenceFunction
 
 [Serializable]
 [ProtoContract]
-public class XmlAgent
+public class AgentData
 {
     [ProtoMember(1)]
-    public int agenteIndex;
+    public int agentNumber;
 
     [ProtoMember(2)]
     public Vector2 localPosition;

@@ -13,7 +13,7 @@ public class ReadDatabase{
 
 
     //public ExampleContainer exampleContainer;
-    public static void readDatabase() {
+    public static ExampleContainer readDatabase() {
         /*XmlSerializer serializer = new XmlSerializer(typeof(ExampleContainer));
         Stream fileReader = new FileStream(@"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt", FileMode.Open);
         ExampleContainer exampleContainer;
@@ -21,7 +21,7 @@ public class ReadDatabase{
         fileReader.Close();
         Debug.Log(exampleContainer.examples[10].exampleNumber);
         Debug.Log(exampleContainer.examples.Count);*/
-        ExampleContainer exampleContainer = Serializer.Deserialize<ExampleContainer>(
+        return Serializer.Deserialize<ExampleContainer>(
             new FileStream(@"C:\Users\David\Documents\GitHub\Kex\DatabaseTest2\xmlTest.proto", FileMode.Open, FileAccess.Read));
 
         /*var doc = XDocument.Load(@"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt");
