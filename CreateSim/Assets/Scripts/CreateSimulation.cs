@@ -11,7 +11,7 @@ public class CreateSimulation {
     
 
     private Dictionary<int, float> affinityTable;
-    private float matchingCUTOFF = new float{};
+    private static float matchingCUTOFF = new float{};
     private static Dictionary<int, Agent> activeAgentTable;
     private Configuration[] exampleConfigurations;
     private static Configuration currentQueryConfiguration = null;
@@ -36,7 +36,7 @@ public class CreateSimulation {
                 currentQueryConfiguration = createQueryConf(agentNumber);
                 float matchingValue = MatchingFunctions.matchingFunction
                     (currentQueryConfiguration, agent.lastConfiguration);
-                agent.lastConfiguration = currentQueryConfiguration;
+                agent.lastConfiguration = currentQueryConfiguration;   // flytta ner!
                 // use matching function to compare current configuration with the configuration when the last trajectory was assigned
                 if (matchingValue < matchingCUTOFF)
                 {
@@ -104,20 +104,10 @@ public class CreateSimulation {
                 }
             }
         }
-
+        
     }
 
-    public float matchingFunction(example,j)
-    {
-        float simval = 
-        return sim;
-    }
-
-    public float affinityFunction()
-    {
-
-    }
-
+   
     private static Configuration createQueryConf(int agentNumber)
     {
         Vector2 tempVector;

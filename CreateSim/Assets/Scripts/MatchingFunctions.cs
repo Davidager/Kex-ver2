@@ -9,23 +9,23 @@ public class MatchingFunctions{
     Agent infFactorj;
     float AffValue;
     //kolla storleksordningen på cutoffen
-    private float affinityCUTOFF = 0.3f;
+    private static float affinityCUTOFF = 0.3f;
     private static int topInfKey;
     private float newXcoord;
     private float newZcoord;
     private float newSpeed;
     private float newDirection;
     private static float[] affinityValueList;
-    private float simVal;
-    private float gauss1;
-    private float gauss2;
-    private float gauss3;
-    private float sumInfk;
-    private float sumInfj;
-    private float Um;
-    private float speedGaussian;
-    private float affinitySum;
-    private float matchingValue;
+    private static float simVal;
+    private static float gauss1;
+    private static float gauss2;
+    private static float gauss3;
+    private static float sumInfk;
+    private static float sumInfj;
+    private static float Um;
+    private static float speedGaussian;
+    private static float affinitySum;
+    private static float matchingValue;
     private static float topAffValue = 0;
     private static float affValue;
     private static Dictionary<int, float> topAffValues;
@@ -35,19 +35,19 @@ public class MatchingFunctions{
     private static Dictionary<int, int> compareCounter;
     //private static Dictionary<int, float> compareDic;
     private static int[] jKeys;
-    private List<int> jUnmatched;
-    private List<int> kUnmatched;
-    private float[] xCoordListCopyk;
-    private float[] zCoordListCopyk;
-    private float[] speedListCopyk;
-    private float[] directionListCopyk;
-    private float[] xCoordListCopyj;
-    private float[] zCoordListCopyj;
-    private float[] speedListCopyj;
-    private float[] directionListCopyj;
-    private float[] speedListCopySubject;
-    private float[] simVals = new float[40];
-    private float Aff;
+    private static List<int> jUnmatched;
+    private static List<int> kUnmatched;
+    private static float[] xCoordListCopyk;
+    private static float[] zCoordListCopyk;
+    private static float[] speedListCopyk;
+    private static float[] directionListCopyk;
+    private static float[] xCoordListCopyj;
+    private static float[] zCoordListCopyj;
+    private static float[] speedListCopyj;
+    private static float[] directionListCopyj;
+    private static float[] speedListCopySubject;
+    private static float[] simVals = new float[40];
+    private static float Aff;
     //alla infAgents i configuration måste ha lokala parametrar
     //Ska returnera nånting?
     public static float matchingFunction(Configuration query, Configuration comparator)
@@ -93,14 +93,15 @@ public class MatchingFunctions{
                 compareCounter.Add(jKey, 1);
             }
         }
-        for (int i = 0; i < query.infAgentArray.Length; i++)
+        for (int k = 0; k < query.infAgentArray.Length; k++)
         {
-            affinityValueList[i] = (query.influenceValues[i] + ((comparator.influenceValues[jKeys[i]].)/compareCounter[jKeys[i]]))*TopAffValues[i]/2;
+            affinityValueList[k] = (query.influenceValues[k] + ((comparator.influenceValues[jKeys[k]])
+                /compareCounter[jKeys[k]]))*topAffValues[k]/2;
         }
 
         for (int j = 0; j < comparator.infAgentArray.Length; j++)
         {
-            if (!compareCounter.ContainsKey(i))
+            if (!compareCounter.ContainsKey(j))
             {
                 jUnmatched.Add(j);
             }
@@ -108,7 +109,7 @@ public class MatchingFunctions{
 
         foreach (KeyValuePair<int, float> topAffValue in topAffValues)
         {
-            if (topAffValue.Value = 0)
+            if (topAffValue.Value == 0)
             {
                 kUnmatched.Add(topAffValue.Key);
             }
@@ -126,7 +127,8 @@ public class MatchingFunctions{
         }
         Um = (sumInfk + sumInfj)/2;
     
-        speedGaussian = (float)Math.Exp(Math.Pow(comparator.subAgent.speedList[0] - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
+        speedGaussian = (float)Math.Exp(Math.Pow(comparator.subAgent.speedList[0] 
+            - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
 
         affinitySum = 0;
         foreach (KeyValuePair<int, float> topAffValue in topAffValues)
@@ -135,7 +137,7 @@ public class MatchingFunctions{
         }
         matchingValue = speedGaussian * (affinitySum - Um);
 
-        return new float { matchingValue };
+        return matchingValue;
 
     }
 

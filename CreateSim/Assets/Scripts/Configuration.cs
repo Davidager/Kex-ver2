@@ -81,12 +81,12 @@ public class Configuration {
 
         ComparatorAgent[] newInfAgentArray = new ComparatorAgent[finalInfluencetable.Count];
         influenceValues = new float[finalInfluencetable.Count];
-        int i = 0;
+        int temp = 0;
         foreach (KeyValuePair<int, float> e in finalInfluencetable)
         {
-            newInfAgentArray[i] = infAgentArray[e.Key];
-            influenceValues[i] = e.Value;
-            i++;
+            newInfAgentArray[temp] = infAgentArray[e.Key];
+            influenceValues[temp] = e.Value;
+            temp++;
         }
         infAgentArray = newInfAgentArray;
     }

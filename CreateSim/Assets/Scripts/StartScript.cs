@@ -11,8 +11,9 @@ public class StartScript : MonoBehaviour {
         {
             ProtoBuf.Meta.RuntimeTypeModel.Default.Add(typeof(Vector2), false).Add("x", "y");
         }
-        ReadDatabase.readDatabase();
+        new CreateSimulation(ReadDatabase.readDatabase());
         Debug.Log("End of code; finished");
+
 	}
 	
 	// Update is called once per frame

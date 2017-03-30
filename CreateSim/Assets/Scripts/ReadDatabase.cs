@@ -21,8 +21,10 @@ public class ReadDatabase{
         fileReader.Close();
         Debug.Log(exampleContainer.examples[10].exampleNumber);
         Debug.Log(exampleContainer.examples.Count);*/
+        string desktopPath = Environment.GetFolderPath(
+                         System.Environment.SpecialFolder.DesktopDirectory);
         return Serializer.Deserialize<ExampleContainer>(
-            new FileStream(@"C:\Users\David\Documents\GitHub\Kex\DatabaseTest2\xmlTest.proto", FileMode.Open, FileAccess.Read));
+            new FileStream(desktopPath + @"\xmlTest.proto", FileMode.Open, FileAccess.Read));
 
         /*var doc = XDocument.Load(@"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt");
         var authors = doc.Root.Elements().Select(x => x.Element("Example"));
