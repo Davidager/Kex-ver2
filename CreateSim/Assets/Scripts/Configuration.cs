@@ -53,33 +53,42 @@ public class Configuration {
                     }
                 }
             }
-            List<int> keyRemoveList = new List<int>();
-            foreach (KeyValuePair<int, float> e in maxInfluenceTable)
-            {
-                if (maxInfluenceTable[e.Key] < CUTOFF)  // kolla storleksordning så CUTOFF är rätt!
-                {
-                    keyRemoveList.Add(e.Key);
-                }
-            }
-            foreach (int key in keyRemoveList)
-            {
-                maxInfluenceTable.Remove(key);
-            }
-
-            float maxInfSum = 0;
-            foreach (KeyValuePair<int, float> e in maxInfluenceTable)
-            {
-                maxInfSum += e.Value;
-            }
-
-            Dictionary<int, float> finalInfluencetable = new Dictionary<int, float>();
-            foreach (KeyValuePair<int, float> e in maxInfluenceTable)
-            {
-                finalInfluencetable.Add(e.Key, e.Value / maxInfSum);
-
-            }
-
         }
+        List<int> keyRemoveList = new List<int>();
+        foreach (KeyValuePair<int, float> e in maxInfluenceTable)
+        {
+            if (maxInfluenceTable[e.Key] < CUTOFF)  // kolla storleksordning så CUTOFF är rätt!
+            {
+                keyRemoveList.Add(e.Key);
+            }
+        }
+        foreach (int key in keyRemoveList)
+        {
+            maxInfluenceTable.Remove(key);
+        }
+
+        float maxInfSum = 0;
+        foreach (KeyValuePair<int, float> e in maxInfluenceTable)
+        {
+            maxInfSum += e.Value;
+        }
+
+        Dictionary<int, float> finalInfluencetable = new Dictionary<int, float>();
+        foreach (KeyValuePair<int, float> e in maxInfluenceTable)
+        {
+            finalInfluencetable.Add(e.Key, e.Value / maxInfSum);
+        }
+
+        ComparatorAgent[] newInfAgentArray = new ComparatorAgent[finalInfluencetable.Count];
+        influenceValues = new float[finalInfluencetable.Count];
+        int i = 0;
+        foreach (KeyValuePair<int, float> e in finalInfluencetable)
+        {
+            newInfAgentArray[i] = infAgentArray[e.Key];
+            influenceValues[i] = e.Value;
+            i++;
+        }
+        infAgentArray = newInfAgentArray;
     }
 
     private Boolean jInFrontofi(float jxCoord, float jzCoord, int i)

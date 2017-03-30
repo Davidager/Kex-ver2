@@ -34,7 +34,9 @@ public class CreateSimulation {
             if (agent.getUpdateCounter() > 14)
             {
                 currentQueryConfiguration = createQueryConf(agentNumber);
-                float matchingValue = matchingFunction(agentArray, subjectIdentifier);
+                float matchingValue = MatchingFunctions.matchingFunction
+                    (currentQueryConfiguration, agent.lastConfiguration);
+                agent.lastConfiguration = currentQueryConfiguration;
                 // use matching function to compare current configuration with the configuration when the last trajectory was assigned
                 if (matchingValue < matchingCUTOFF)
                 {
