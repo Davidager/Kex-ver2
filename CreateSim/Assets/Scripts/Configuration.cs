@@ -10,6 +10,7 @@ public class Configuration {
     public float[] influenceValues;
     private Dictionary<int, float> maxInfluenceTable;
     private static float CUTOFF = 0.1f;
+    private ComparatorAgent subAgentCopy;
 
     public Configuration()
     {
@@ -24,20 +25,20 @@ public class Configuration {
             for (int i = 0; i < 40; i++)
             {
 
-                float distance = (float)Math.Sqrt((infAgentArray[j].xCoordList[i] - subAgent.xCoordList[i]) *
-                    (infAgentArray[j].xCoordList[i] - subAgent.xCoordList[i]) +
-                    (infAgentArray[j].zCoordList[i] - subAgent.zCoordList[i]) *
-                    (infAgentArray[j].zCoordList[i] - subAgent.zCoordList[i]));
+                float distance = (float)Math.Sqrt((infAgentArray[j].xCoordList[i] - subAgentCopy.xCoordList[i]) *
+                    (infAgentArray[j].xCoordList[i] - subAgentCopy.xCoordList[i]) +
+                    (infAgentArray[j].zCoordList[i] - subAgentCopy.zCoordList[i]) *
+                    (infAgentArray[j].zCoordList[i] - subAgentCopy.zCoordList[i]));
                 float influencePj;
-                influencePj = (float)Math.Exp(-subAgent.speedList[i] * Math.Pow(distance, 2) / 2);
+                influencePj = (float)Math.Exp(-subAgentCopy.speedList[i] * Math.Pow(distance, 2) / 2);
                 float infFactor;
                 if (jInFrontofi(infAgentArray[j].xCoordList[i], infAgentArray[j].zCoordList[i], i))
                 {
-                    infFactor = (float)Math.Exp(-1 * Math.Pow(distance, 2) / (2 * subAgent.speedList[i]));
+                    infFactor = (float)Math.Exp(-1 * Math.Pow(distance, 2) / (2 * subAgentCopy.speedList[i]));
                 }
                 else
                 {
-                    infFactor = (float)Math.Exp(-subAgent.speedList[i] * Math.Pow(distance, 2));
+                    infFactor = (float)Math.Exp(-subAgentCopy.speedList[i] * Math.Pow(distance, 2));
                 }
 
                 float infOut = influencePj * infFactor;
@@ -93,9 +94,9 @@ public class Configuration {
 
     private Boolean jInFrontofi(float jxCoord, float jzCoord, int i)
     {
-        Vector2 retvec = new Vector2(jxCoord - subAgent.xCoordList[i], jzCoord - subAgent.zCoordList[i]);
+        Vector2 retvec = new Vector2(jxCoord - subAgentCopy.xCoordList[i], jzCoord - subAgentCopy.zCoordList[i]);
         //float retvecDirection = Spline.calculateDirection(retvec.x, retvec.y);
-        Vector2 iVec = new Vector2(Mathf.Cos(subAgent.directionList[i]), Mathf.Sin(subAgent.directionList[i]));
+        Vector2 iVec = new Vector2(Mathf.Cos(subAgentCopy.directionList[i]), Mathf.Sin(subAgentCopy.directionList[i]));
         //retvec = Quaternion.Euler(new Vector3(0, 0, (iDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * retvec;
 
         if (Vector2.Dot(retvec, iVec) < 0)
@@ -133,6 +134,9 @@ public class Configuration {
             fillConfig(agent);
             
         }
+        subAgentCopy = subAgent;
+        fillConfig(subAgentCopy);
+        
         calculateInfluences();
 
         

@@ -135,6 +135,7 @@ public class Example {
     {
         direction = direction - originDirection + Mathf.PI / 2;
         if (direction < 0) direction = direction + 2 * Mathf.PI;
+        if (direction > 2 * Mathf.PI) direction = direction - 2 * Mathf.PI;
         return direction;
     }
 

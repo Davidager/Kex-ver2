@@ -34,36 +34,42 @@ public class MatchingFunctions{
     private static Dictionary<int, Dictionary<int, float>> outerAffVals;
     private static Dictionary<int, int> compareCounter;
     //private static Dictionary<int, float> compareDic;
-    private static int[] jKeys;
+    //private static int[] jKeys;
+    private static Dictionary<int, int> jKeys;
     private static List<int> jUnmatched;
     private static List<int> kUnmatched;
-    private static float[] xCoordListCopyk;
-    private static float[] zCoordListCopyk;
-    private static float[] speedListCopyk;
-    private static float[] directionListCopyk;
-    private static float[] xCoordListCopyj;
-    private static float[] zCoordListCopyj;
-    private static float[] speedListCopyj;
-    private static float[] directionListCopyj;
-    private static float[] speedListCopySubject;
+    private static List<float> xCoordListCopyk;
+    private static List<float> zCoordListCopyk;
+    private static List<float> speedListCopyk;
+    private static List<float> directionListCopyk;
+    private static List<float> xCoordListCopyj;
+    private static List<float> zCoordListCopyj;
+    private static List<float> speedListCopyj;
+    private static List<float> directionListCopyj;
+    private static List<float> speedListCopySubject;
     private static float[] simVals = new float[40];
     private static float Aff;
     //alla infAgents i configuration måste ha lokala parametrar
     //Ska returnera nånting?
     public static float matchingFunction(Configuration query, Configuration comparator)
     {
+        
+        outerAffVals = new Dictionary<int, Dictionary<int, float>>();
         //infAgentDic ska vara indexerad från 0 och inte hoppa över någon key
         for (int k = 0; k < query.infAgentArray.Length; k++)
         {
+            innerAffVals = new Dictionary<int, float>();
             for (int j = 0; j < comparator.infAgentArray.Length; j++)
             {
                 affValue = affinityFunction(query.subAgent, query.infAgentArray[k], comparator.infAgentArray[j]);
-                innerAffVals.Add(j, affValue);
-                outerAffVals.Add(k, innerAffVals);
+                innerAffVals.Add(j, affValue);               
             }
+            outerAffVals.Add(k, innerAffVals);
         }
 
-
+        //jKeys = new int[query.infAgentArray.Length];
+        jKeys = new Dictionary<int, int>();
+        topAffValues = new Dictionary<int, float>();
         for (int i = 0; i < query.infAgentArray.Length; i++)   // Kanske kan optimeras genom att hålla koll på största vid skapande?
         {            
             foreach (KeyValuePair<int, float> AffValue in outerAffVals[i])
@@ -76,29 +82,31 @@ public class MatchingFunctions{
             }
             if (topAffValue > 0)
             {
-                jKeys[i] = topInfKey;
+                jKeys.Add(i,topInfKey);
             }
             topAffValues.Add(i, topAffValue);
             topAffValue = 0;
 
         }
-        foreach (int jKey in jKeys)
+        compareCounter = new Dictionary<int, int>();
+        foreach (KeyValuePair<int, int> e in jKeys)
         {
-            if (compareCounter.ContainsKey(jKey))
+            if (compareCounter.ContainsKey(e.Value))
             {
-                compareCounter[jKey]++;
+                compareCounter[e.Value]++;
             }
             else
             {
-                compareCounter.Add(jKey, 1);
+                compareCounter.Add(e.Value, 1);
             }
         }
-        for (int k = 0; k < query.infAgentArray.Length; k++)
+        affinityValueList = new float[query.infAgentArray.Length];
+        foreach (KeyValuePair<int, int> e in jKeys)
         {
-            affinityValueList[k] = (query.influenceValues[k] + ((comparator.influenceValues[jKeys[k]])
-                /compareCounter[jKeys[k]]))*topAffValues[k]/2;
+            affinityValueList[e.Key] = (query.influenceValues[e.Key] + ((comparator.influenceValues[e.Value])
+                /compareCounter[e.Value]))*topAffValues[e.Key] /2;
         }
-
+        jUnmatched = new List<int>();
         for (int j = 0; j < comparator.infAgentArray.Length; j++)
         {
             if (!compareCounter.ContainsKey(j))
@@ -107,6 +115,7 @@ public class MatchingFunctions{
             }
         }
 
+        kUnmatched = new List<int>();
         foreach (KeyValuePair<int, float> topAffValue in topAffValues)
         {
             if (topAffValue.Value == 0)
@@ -123,7 +132,7 @@ public class MatchingFunctions{
         }
         foreach (int j in jUnmatched)
         {
-            sumInfj = sumInfj + (query.influenceValues[j] * query.influenceValues[j]);
+            sumInfj = sumInfj + (comparator.influenceValues[j] * comparator.influenceValues[j]);
         }
         Um = (sumInfk + sumInfj)/2;
     
@@ -131,9 +140,9 @@ public class MatchingFunctions{
             - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
 
         affinitySum = 0;
-        foreach (KeyValuePair<int, float> topAffValue in topAffValues)
+        foreach (float aff in affinityValueList)
         {
-            affinitySum += topAffValue.Value;
+            affinitySum += aff;
         }
         matchingValue = speedGaussian * (affinitySum - Um);
 
@@ -145,15 +154,15 @@ public class MatchingFunctions{
     {
         //FillConfig(k);
         //FillConfig(j);
-        k.xCoordList.CopyTo(xCoordListCopyk, 0);
-        k.zCoordList.CopyTo(zCoordListCopyk, 0);
-        k.speedList.CopyTo(speedListCopyk, 0);
-        k.directionList.CopyTo(directionListCopyk, 0);
-        j.xCoordList.CopyTo(xCoordListCopyj, 0);
-        j.zCoordList.CopyTo(zCoordListCopyj, 0);
-        j.speedList.CopyTo(speedListCopyj, 0);
-        j.directionList.CopyTo(directionListCopyj, 0);
-        querySub.speedList.CopyTo(speedListCopySubject, 0);
+        xCoordListCopyk = k.xCoordList;
+        zCoordListCopyk = k.zCoordList;
+        speedListCopyk = k.speedList;
+        directionListCopyk = k.directionList;
+        xCoordListCopyj = j.xCoordList;
+        zCoordListCopyj = j.zCoordList;
+        speedListCopyj = j.speedList;
+        directionListCopyj = j.directionList;
+        speedListCopySubject = querySub.speedList;
 
         for (int i = 0; i < 40; i++)
         {

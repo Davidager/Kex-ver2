@@ -17,12 +17,23 @@ public class CreateSimulation {
     private static float influenceCUTOFF = 0.3f;
     private static ComparatorAgent exampleSubAgent;
     private static int confIndex = new int();
-    private static float matchingValue = new float();
+    //private static float matchingValue = new float();
     private static float tempx;
     private static float tempz;
     private static float tempSpeed;
     private static float tempDirection;
     private static float tempAff;
+    private static float xDiff;
+    private static float zDiff;
+    private static bool collision;
+    private static Vector2 qPosition;
+    //set radiusCUTOFF
+    private static float radiusCUTOFF = 0.02f;
+    private static float kDirectionGlobal;
+    private static Vector2 originVector;
+    private static float originDirection;
+    private static Vector2 kPositionGlobal;
+    private static Vector2 tempVector;
     private static List<float> matchingFunctionList = new List<float>();
     private static List<float> affinityValueList = new List<float>();
     private static Dictionary<float, int> affinityValueDic = new Dictionary<float, int>();
@@ -43,7 +54,7 @@ public class CreateSimulation {
     {
         exampleConfigurations = createExampleConfigurations(exampleContainer);
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 2; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -66,7 +77,6 @@ public class CreateSimulation {
                
                 float matchingValue = MatchingFunctions.matchingFunction
                     (currentQueryConfiguration, agent.lastConfiguration);
-                agent.lastConfiguration = currentQueryConfiguration;   // flytta ner!
                 // use matching function to compare current configuration with the configuration when the last trajectory was assigned
                 if (matchingValue < matchingCUTOFF)
                 {
@@ -77,16 +87,9 @@ public class CreateSimulation {
         {
             updateTrajectory(agent, agentNumber);
         }
+        agent.lastConfiguration = currentQueryConfiguration;
     }
 
-<<<<<<< HEAD
-    private static void updateTrajectory(Agent Agentj){
-
-       /* Agentj.calculateInfluences;
-        int i = 0;
-        int j = 0;
-        while (i < Agentj.influenceList.length())
-=======
     private static void updateTrajectory(Agent Agentq, int agentNumber){
         tempx = Agentq.xCoordList[0];
         Agentq.xCoordList = new List<float>();
@@ -100,79 +103,126 @@ public class CreateSimulation {
         tempDirection = Agentq.directionList[0];
         Agentq.directionList = new List<float>();
         Agentq.directionList.Add(tempDirection);
-        
-        if (currentQueryConfiguration.influenceValues.Length == 0)
->>>>>>> origin/master
+
+        if (currentQueryConfiguration.influenceValues.Length == 0) {
+            fillConfig(Agentq);
+        }
+        else
         {
-            //de 5 raderna under kan ev istället lösas med fill config
-            while (Agentq.xCoordList.Count < 40)
-            {
-                Agentq.xCoordList.Add(Agentq.xCoordList[0] + Agentq.speedList[0] * Mathf.Cos(Agentq.directionList[0]));
-                Agentq.zCoordList.Add(Agentq.zCoordList[0] + Agentq.speedList[0] * Mathf.Sin(Agentq.directionList[0]));
-                Agentq.speedList.Add(Agentq.speedList[0]);
-                Agentq.directionList.Add(Agentq.directionList[0]);
-            }
-        }else
-        {
-            // use matching function to compare current configuration to the configuration of all examples
+   
             for (int temp = 0; temp < exampleConfigurations.Length; temp++)
             {
-                matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, exampleConfigurations[temp]);
+                float matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, exampleConfigurations[temp]);
                 if (matchingValue > 0)
                 {
                     matchingFunctionList.Add(matchingValue);
-                    matchingFunctionDic.Add(matchingValue, temp);
+                    if (!matchingFunctionDic.ContainsKey(matchingValue))
+                    {
+                        matchingFunctionDic.Add(matchingValue, temp);
+                    }                
                 }
                 else
                 {
-                    negativeMatchingIndexList.Add(temp); 
+                    negativeMatchingIndexList.Add(temp);
                 }
             }
             matchingFunctionList.Sort();
-            checkCollision(matchingFunctionList, matchingFunctionDic);
-            
-            if (Agentq.xCoordList.Count<2)
+            checkCollision(matchingFunctionList, matchingFunctionDic, agentNumber);
+
+            if (Agentq.xCoordList.Count < 2)
             {
                 foreach (int confIndex in negativeMatchingIndexList)
                 {
-                    tempAff = MatchingFunctions.affinityFunction(//comparator agents);
+                    tempAff = MatchingFunctions.affinityFunction(currentQueryConfiguration.subAgent, currentQueryConfiguration.subAgent, exampleConfigurations[confIndex].subAgent);
                     affinityValueList.Add(tempAff);
                     affinityValueDic.Add(tempAff, confIndex);
                 }
                 affinityValueList.Sort();
-                checkCollision(affinityValueList, affinityValueDic);
+                checkCollision(affinityValueList, affinityValueDic, agentNumber);
             }
-<<<<<<< HEAD
-        }*/
-=======
+
         }
-        matchingFunctionList.Clear;
->>>>>>> origin/master
+       
+        matchingFunctionList.Clear();
+        affinityValueList.Clear();
         
     }
 
-    private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic)
+    private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic, int agentNumber)
     {
-        int i = matchingFunctionList.Count - 1;
+        int i = valueList.Count - 1;
+        originVector = new Vector2(currentQueryConfiguration.subAgent.xCoordList[0], currentQueryConfiguration.subAgent.zCoordList[0]);
+        originDirection = currentQueryConfiguration.subAgent.directionList[0];
         while (i >= 0)
         {
-            matchingFunctionDic.TryGetValue(matchingFunctionList[i], out confIndex);
+            confIndex = indexDic[valueList[i]];
             exampleSubAgent = exampleConfigurations[confIndex].subAgent;
+            agentqCopy = activeAgentTable[agentNumber];
+            for (int ii = 1; ii < 40; ii++)
+            {
+                agentqCopy.addToTrajectory(exampleSubAgent.xCoordList[ii], exampleSubAgent.zCoordList[ii],
+                    exampleSubAgent.speedList[ii], exampleSubAgent.directionList[ii]);
+
+                /*agentqCopy.xCoordList[ii] = exampleSubAgent.xCoordList[ii];
+                agentqCopy.zCoordList[ii] = exampleSubAgent.zCoordList[ii];
+                agentqCopy.speedList[ii] = exampleSubAgent.speedList[ii];
+                agentqCopy.directionList[ii] = exampleSubAgent.directionList[ii];*/
+
+            }
+            collision = false;
             foreach (KeyValuePair<int, Agent> agentk in activeAgentTable)
             {
                 if (!(agentk.Key == agentNumber))
                 {
                     agentkCopy = agentk.Value;
-                    fillConfig(agentkCopy)
+                    fillConfig(agentkCopy);
+                    for (int temp = 0; temp < 40; temp++)
+                    {
+                        kPositionGlobal = new Vector2(agentkCopy.xCoordList[temp], agentkCopy.zCoordList[temp]);
+                        kDirectionGlobal = agentkCopy.directionList[temp];
+                        
+                        tempVector = globalToLocalVector2(kPositionGlobal, originVector, originDirection);
+                        agentkCopy.directionList[temp] = globalToLocalDirection(kDirectionGlobal, originDirection);
+                        agentkCopy.xCoordList[temp] = tempVector.x;
+                        agentkCopy.zCoordList[temp] = tempVector.y;
+                    }
 
-                        agentqCopy = activeAgentTable[agentNumber];
-                    fillConfig(agentqCopy);
+                    
+                    for (int temp = 0; temp < 40; temp++)
+                    {
+                        xDiff = agentkCopy.xCoordList[temp] - agentqCopy.xCoordList[temp];
+                        zDiff = agentkCopy.zCoordList[temp] - agentqCopy.zCoordList[temp];
+                        if (xDiff > -1*radiusCUTOFF && xDiff < radiusCUTOFF)
+                        {
+                            collision = true;
+                            break;
 
+                        }
+                        if (zDiff > -1 * radiusCUTOFF && zDiff < radiusCUTOFF)
+                        {
+                            collision = true;
+                            break;
+
+                        }
+                    }
+                    if (collision == true) break;
+                }
+            }
+            if (collision == false)
+            {
+                for (int temp = 1; temp < 40; temp++)
+                {
+                    qPosition = new Vector2(agentqCopy.xCoordList[temp], agentqCopy.zCoordList[temp]);
+                    activeAgentTable[agentNumber].xCoordList[temp] = qPosition.x;
+                    activeAgentTable[agentNumber].zCoordList[temp] = qPosition.y;
+                    activeAgentTable[agentNumber].speedList[temp] = agentqCopy.speedList[temp];
+                    activeAgentTable[agentNumber].directionList[temp] = agentqCopy.directionList[temp];
                 }
             }
             i--;
         }
     }
+
    
     private static Configuration createQueryConf(int agentNumber)
     {
@@ -270,8 +320,41 @@ public class CreateSimulation {
     {
         direction = direction - originDirection + Mathf.PI / 2;
         if (direction < 0) direction = direction + 2 * Mathf.PI;
+        if (direction > 2 * Mathf.PI) direction = direction - 2 * Mathf.PI;
         return direction;
     }
+
+    private static Vector2 localToGlobalVector2(Vector2 position, Vector2 newOrigin, float originDirection)
+    {
+        Vector2 retvec = Quaternion.Euler(new Vector3(0, 0, -(originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * position;
+        retvec = new Vector2(retvec.x + newOrigin.x, retvec.y + newOrigin.y);
+        return retvec;
+    }
+
+    private static float localToGlobalDirection(float direction, float originDirection)
+    {
+        direction = direction + originDirection - Mathf.PI / 2;
+        if (direction > 2*Mathf.PI) direction = direction - 2 * Mathf.PI;
+        if (direction < 0) direction = direction + 2 * Mathf.PI;
+        return direction;
+    }
+
+    private static void fillConfig(Agent agent)
+    {
+        while (agent.xCoordList.Count < 40)
+        {
+            float newXcoord = agent.xCoordList[agent.xCoordList.Count - 1] + agent.speedList[agent.speedList.Count - 1] * (float)Math.Cos(agent.directionList[agent.directionList.Count - 1]);
+            float newZcoord = agent.zCoordList[agent.zCoordList.Count - 1] + agent.speedList[agent.speedList.Count - 1] * (float)Math.Sin(agent.directionList[agent.directionList.Count - 1]);
+            float newSpeed = agent.speedList[agent.speedList.Count - 1];
+            float newDirection = agent.directionList[agent.directionList.Count - 1];
+            agent.xCoordList.Add(newXcoord);
+            agent.zCoordList.Add(newZcoord);
+            agent.speedList.Add(newSpeed);
+            agent.directionList.Add(newDirection);
+
+        }
+    }
+
 
 
     // Låter assigntrajectory ske i Agents updatefunktion istället!
