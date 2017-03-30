@@ -20,14 +20,23 @@ public class MatchingFunctions{
     private float gauss1;
     private float gauss2;
     private float gauss3;
+    private float sumInfk;
+    private float sumInfj;
+    private float Um;
+    private float speedGaussian;
+    private float affinitySum;
+    private float matchingValue;
     private static float topAffValue = 0;
     private static float affValue;
-    private static float[] TopAffValues;
+    private static Dictionary<int, float> topAffValues;
+    //private static float[] TopAffValues;
     private static Dictionary<int, float> innerAffVals;
     private static Dictionary<int, Dictionary<int, float>> outerAffVals;
     private static Dictionary<int, int> compareCounter;
     //private static Dictionary<int, float> compareDic;
     private static int[] jKeys;
+    private List<int> jUnmatched;
+    private List<int> kUnmatched;
     private float[] xCoordListCopyk;
     private float[] zCoordListCopyk;
     private float[] speedListCopyk;
@@ -69,7 +78,7 @@ public class MatchingFunctions{
             {
                 jKeys[i] = topInfKey;
             }
-            TopAffValues[i] = topAffValue;
+            topAffValues.Add(i, topAffValue);
             topAffValue = 0;
 
         }
@@ -89,7 +98,44 @@ public class MatchingFunctions{
             affinityValueList[i] = (query.influenceValues[i] + ((comparator.influenceValues[jKeys[i]].)/compareCounter[jKeys[i]]))*TopAffValues[i]/2;
         }
 
-        return new float { };
+        for (int j = 0; j < comparator.infAgentArray.Length; j++)
+        {
+            if (!compareCounter.ContainsKey(i))
+            {
+                jUnmatched.Add(j);
+            }
+        }
+
+        foreach (KeyValuePair<int, float> topAffValue in topAffValues)
+        {
+            if (topAffValue.Value = 0)
+            {
+                kUnmatched.Add(topAffValue.Key);
+            }
+        }
+
+        sumInfk = 0;
+        sumInfj = 0;
+        foreach (int k in kUnmatched)
+        {
+            sumInfk = sumInfk + (query.influenceValues[k] * query.influenceValues[k]);
+        }
+        foreach (int j in jUnmatched)
+        {
+            sumInfj = sumInfj + (query.influenceValues[j] * query.influenceValues[j]);
+        }
+        Um = (sumInfk + sumInfj)/2;
+    
+        speedGaussian = (float)Math.Exp(Math.Pow(comparator.subAgent.speedList[0] - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
+
+        affinitySum = 0;
+        foreach (KeyValuePair<int, float> topAffValue in topAffValues)
+        {
+            affinitySum += topAffValue.Value;
+        }
+        matchingValue = speedGaussian * (affinitySum - Um);
+
+        return new float { matchingValue };
 
     }
 
