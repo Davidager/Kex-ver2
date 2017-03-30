@@ -108,7 +108,7 @@ public class ReadText {
         string path = desktopPath + @"\MyTest.txt";
         File.WriteAllText(path, sb.ToString());
         
-        string xmlPath = desktopPath + @"\xmlTest.txt"; ;
+        string xmlPath = desktopPath + @"\xmlTest.proto"; ;
         SaveData.save(xmlPath, SaveData.exampleContainer);
     }
 
