@@ -11,9 +11,32 @@ public class CreateSimulation {
     
 
     private Dictionary<int, float> affinityTable;
-    private static float matchingCUTOFF = new float{};
+    //set matching cutoff to the right level
+    private static float matchingCUTOFF = 0.8f;
+    //set inglencecutoff to the sama as in database
+    private static float influenceCUTOFF = 0.3f;
+    private static ComparatorAgent exampleSubAgent;
+    private static int confIndex = new int();
+    private static float matchingValue = new float();
+    private static float tempx;
+    private static float tempz;
+    private static float tempSpeed;
+    private static float tempDirection;
+    private static float tempAff;
+    private static List<float> matchingFunctionList = new List<float>();
+    private static List<float> affinityValueList = new List<float>();
+    private static Dictionary<float, int> affinityValueDic = new Dictionary<float, int>();
+    private static List<float> xCoordListCopy;
+    private static List<float> zCoordListCopy;
+    private static List<float> speedListCopy;
+    private static List<float> directionListCopy;
+    private static Agent agentkCopy;
+    private static Agent agentqCopy;
+    private static Dictionary<float, int> matchingFunctionDic = new Dictionary<float, int>();
+    private static List<int> negativeMatchingIndexList = new List<int>();
+    private static int matchingIndex = new int();
     private static Dictionary<int, Agent> activeAgentTable;
-    private Configuration[] exampleConfigurations;
+    private static Configuration[] exampleConfigurations;
     private static Configuration currentQueryConfiguration = null;
 
     public CreateSimulation(ExampleContainer exampleContainer)
@@ -35,84 +58,121 @@ public class CreateSimulation {
 
     public static void assignTrajectory(Agent agent, int agentNumber){
 
+        currentQueryConfiguration = createQueryConf(agentNumber);
         if (agent.hasTrajectory())
         {
             if (agent.getUpdateCounter() > 14)
             {
-                currentQueryConfiguration = createQueryConf(agentNumber);
+               
                 float matchingValue = MatchingFunctions.matchingFunction
                     (currentQueryConfiguration, agent.lastConfiguration);
                 agent.lastConfiguration = currentQueryConfiguration;   // flytta ner!
                 // use matching function to compare current configuration with the configuration when the last trajectory was assigned
                 if (matchingValue < matchingCUTOFF)
                 {
-                    updateTrajectory(agent);
+                    updateTrajectory(agent, agentNumber);
                 }
             }
         }else
         {
-            updateTrajectory(agent);
+            updateTrajectory(agent, agentNumber);
         }
     }
 
+<<<<<<< HEAD
     private static void updateTrajectory(Agent Agentj){
 
        /* Agentj.calculateInfluences;
         int i = 0;
         int j = 0;
         while (i < Agentj.influenceList.length())
+=======
+    private static void updateTrajectory(Agent Agentq, int agentNumber){
+        tempx = Agentq.xCoordList[0];
+        Agentq.xCoordList = new List<float>();
+        Agentq.xCoordList.Add(tempx);
+        tempz = Agentq.zCoordList[0];
+        Agentq.zCoordList = new List<float>();
+        Agentq.zCoordList.Add(tempz);
+        tempSpeed = Agentq.speedList[0];
+        Agentq.speedList = new List<float>();
+        Agentq.speedList.Add(tempSpeed);
+        tempDirection = Agentq.directionList[0];
+        Agentq.directionList = new List<float>();
+        Agentq.directionList.Add(tempDirection);
+        
+        if (currentQueryConfiguration.influenceValues.Length == 0)
+>>>>>>> origin/master
         {
-            if (Agentj.influenceList(i) > influenceCUTOFF)
+            //de 5 raderna under kan ev istället lösas med fill config
+            while (Agentq.xCoordList.Count < 40)
             {
-                j++;
+                Agentq.xCoordList.Add(Agentq.xCoordList[0] + Agentq.speedList[0] * Mathf.Cos(Agentq.directionList[0]));
+                Agentq.zCoordList.Add(Agentq.zCoordList[0] + Agentq.speedList[0] * Mathf.Sin(Agentq.directionList[0]));
+                Agentq.speedList.Add(Agentq.speedList[0]);
+                Agentq.directionList.Add(Agentq.directionList[0]);
             }
-            i++;
-        }
-        if (j == 0)
-        {
-            //give agent trajectory straight forward for 40 frames
         }else
         {
             // use matching function to compare current configuration to the configuration of all examples
-            int i = 0;
-            foreach (example in ReadDatabase.exampleContainer)
+            for (int temp = 0; temp < exampleConfigurations.Length; temp++)
             {
-
-            }
-            //empty Agentj.positionList
-            //create trajectoryList and add the trajectories for all examples with positive matching function
-            //sort trajectoryList by decending matching values
-            i = 0;
-            while (i < trajectoryList.length())
-            {
-                if (trajectoryList(i) will lead to collision){
-                    i++
-                }else{
-                    Agentj.trajectory = trajectoryList(i);
-                    i = trajectoryList.length();
-                }
-            }
-            if (Agentj.trajectory.isEmpty())
-            {
-                foreach (exampletrajectory in database)
+                matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, exampleConfigurations[temp]);
+                if (matchingValue > 0)
                 {
-                    affinityValueList.add(exampletrajectory and affintyvalue);
-                    //sort affintyValueList by decending affinty value 
+                    matchingFunctionList.Add(matchingValue);
+                    matchingFunctionDic.Add(matchingValue, temp);
                 }
-                i = 0;
-                while (i < affinityValueList.length())
+                else
                 {
-                    if (trajectory i doesnt lead to collision){
-                        Agentj.trajectory = trajectory i;
-                        i = affinityValueList.length(); 
-                    }
-                    i++
+                    negativeMatchingIndexList.Add(temp); 
                 }
             }
+            matchingFunctionList.Sort();
+            checkCollision(matchingFunctionList, matchingFunctionDic);
+            
+            if (Agentq.xCoordList.Count<2)
+            {
+                foreach (int confIndex in negativeMatchingIndexList)
+                {
+                    tempAff = MatchingFunctions.affinityFunction(//comparator agents);
+                    affinityValueList.Add(tempAff);
+                    affinityValueDic.Add(tempAff, confIndex);
+                }
+                affinityValueList.Sort();
+                checkCollision(affinityValueList, affinityValueDic);
+            }
+<<<<<<< HEAD
         }*/
+=======
+        }
+        matchingFunctionList.Clear;
+>>>>>>> origin/master
         
     }
 
+    private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic)
+    {
+        int i = matchingFunctionList.Count - 1;
+        while (i >= 0)
+        {
+            matchingFunctionDic.TryGetValue(matchingFunctionList[i], out confIndex);
+            exampleSubAgent = exampleConfigurations[confIndex].subAgent;
+            foreach (KeyValuePair<int, Agent> agentk in activeAgentTable)
+            {
+                if (!(agentk.Key == agentNumber))
+                {
+                    agentkCopy = agentk.Value;
+                    fillConfig(agentkCopy)
+
+                        agentqCopy = activeAgentTable[agentNumber];
+                    fillConfig(agentqCopy);
+
+                }
+            }
+            i--;
+        }
+    }
    
     private static Configuration createQueryConf(int agentNumber)
     {
