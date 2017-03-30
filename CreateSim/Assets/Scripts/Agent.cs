@@ -16,9 +16,10 @@ public class Agent : MonoBehaviour
     private float noseRadius;
     private int agentNumber;
 
-    private Vector3 targetPos;
+
 
     public Configuration lastConfiguration;
+    private CreateSimulation createSimulation;
 
     public List<float> xCoordList;
     public List<float> zCoordList;
@@ -52,28 +53,12 @@ public class Agent : MonoBehaviour
 
     void Update ()
     {
-        //ändrar targetframe 
-
-        // ändrar riktningen till riktningen hos den framen vi precis kommit fram till 
-        //changeLookingDirection(coordArray[controlPointNumber * 4 - 1]);
-        // nästa frame fås genom att öka controlpointnumber
-
-        // currentTargetFrame = (int)coordArray[(controlPointNumber * 4) + 2];
-        // targetPos = new Vector3(coordArray[controlPointNumber * 4], yHeightCoord, coordArray[controlPointNumber * 4 + 1]);
-        // controlPointNumber++;
-        // float dist = Vector3.Distance(targetPos, movingSplineTransform.position);
-        // speed = dist / ((currentTargetFrame - frameCounter));
+        
 
         CreateSimulation.assignTrajectory(this, agentNumber);
         moveSpline();
-        
-
         updateCounter++;
-        /*if (frameCounter >= lastFrame)
-        {
-            Destroy(movingSpline);
-            Destroy(this);
-        }*/
+      
     }
 
     private void setStartValues()
@@ -94,6 +79,11 @@ public class Agent : MonoBehaviour
     public int getAgentNumber()
     {
         return agentNumber;
+    }
+
+    public void setCreateSimulation(CreateSimulation createSimulation)
+    {
+        this.createSimulation = createSimulation;
     }
 
     public void addToTrajectory(float xCoord, float yCoord, float speed, float direction)
@@ -136,10 +126,26 @@ public class Agent : MonoBehaviour
         return false;
     }
 
-    private void moveSpline ()
+    private void moveSpline()
     {
-        movingSplineTransform.position = Vector3.MoveTowards(movingSplineTransform.position, targetPos, 0.05f);// speed);
-        // TODO: om utanför viss gräns; remove agent!   
+        changeLookingDirection(directionList[0]);
+        Vector3 targetPos = new Vector3(xCoordList[1], yHeightCoord, zCoordList[1]);
+        movingSplineTransform.position = Vector3.MoveTowards(movingSplineTransform.position, targetPos, speedList[0]);// speed);
+
+        // om utanför viss gräns; remove agent!   
+        if (movingSplineTransform.position.x > 3.5f || movingSplineTransform.position.x < -3.5f 
+            || movingSplineTransform.position.z < -3f || movingSplineTransform.position.z > 2.25f)
+        {
+            createSimulation.removeFromActiveAgentTable(agentNumber);
+            Destroy(movingSpline);
+            Destroy(this);
+        }
+
+        // Detta kan vara mycket tidskrävande!!!!!
+        xCoordList.RemoveAt(0);
+        zCoordList.RemoveAt(0);
+        speedList.RemoveAt(0);
+        directionList.RemoveAt(0);
     }
 
     public int getUpdateCounter()

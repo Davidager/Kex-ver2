@@ -24,7 +24,13 @@ public class CreateSimulation {
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
+            activeAgentTable[i].setCreateSimulation(this);
         }
+    }
+
+    public void removeFromActiveAgentTable(int agentNumber)
+    {
+        activeAgentTable.Remove(agentNumber);
     }
 
     public static void assignTrajectory(Agent agent, int agentNumber){
@@ -51,7 +57,7 @@ public class CreateSimulation {
 
     private static void updateTrajectory(Agent Agentj){
 
-        Agentj.calculateInfluences;
+       /* Agentj.calculateInfluences;
         int i = 0;
         int j = 0;
         while (i < Agentj.influenceList.length())
@@ -103,7 +109,7 @@ public class CreateSimulation {
                     i++
                 }
             }
-        }
+        }*/
         
     }
 
