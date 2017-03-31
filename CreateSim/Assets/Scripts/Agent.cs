@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine.Profiling;
 using UnityEngine;
 
 // Class for containing the positions of the cylinders
@@ -53,9 +53,12 @@ public class Agent : MonoBehaviour
 
     void Update ()
     {
-        
 
+        Profiler.BeginSample("assignTrajectory");
+        Debug.Log("yo111");
         CreateSimulation.assignTrajectory(this, agentNumber);
+        Profiler.EndSample();
+        Debug.Log(xCoordList.Count);
         moveSpline();
         updateCounter++;
       
@@ -69,6 +72,15 @@ public class Agent : MonoBehaviour
         zCoordList.Add(Random.Range(-3f, 2.25f));
         speedList.Add(Random.Range(0.015f, 0.03f));
         directionList.Add(Random.Range(0f, 2 * Mathf.PI));
+    }
+    
+    public void initialiseLists()
+    {
+        xCoordList = new List<float>();
+        zCoordList = new List<float>();
+        speedList = new List<float>();
+        directionList = new List<float>();
+
     }
 
     public void setAgentNumber(int agentNumber)
@@ -92,6 +104,7 @@ public class Agent : MonoBehaviour
         zCoordList.Add(yCoord);
         speedList.Add(speed);
         directionList.Add(direction);
+        //if (xCoordList.Count > 40) Debug.Log(xCoordList.Count);
     }
 
     private void startSpline ()
@@ -133,13 +146,13 @@ public class Agent : MonoBehaviour
         movingSplineTransform.position = Vector3.MoveTowards(movingSplineTransform.position, targetPos, speedList[0]);// speed);
 
         // om utanför viss gräns; remove agent!   
-        if (movingSplineTransform.position.x > 3.5f || movingSplineTransform.position.x < -3.5f 
+        /*if (movingSplineTransform.position.x > 3.5f || movingSplineTransform.position.x < -3.5f 
             || movingSplineTransform.position.z < -3f || movingSplineTransform.position.z > 2.25f)
         {
             createSimulation.removeFromActiveAgentTable(agentNumber);
             Destroy(movingSpline);
             Destroy(this);
-        }
+        }*/
 
         // Detta kan vara mycket tidskrävande!!!!!
         xCoordList.RemoveAt(0);

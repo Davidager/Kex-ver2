@@ -61,6 +61,7 @@ public class MatchingFunctions{
             innerAffVals = new Dictionary<int, float>();
             for (int j = 0; j < comparator.infAgentArray.Length; j++)
             {
+                
                 affValue = affinityFunction(query.subAgent, query.infAgentArray[k], comparator.infAgentArray[j]);
                 innerAffVals.Add(j, affValue);               
             }
@@ -100,11 +101,13 @@ public class MatchingFunctions{
                 compareCounter.Add(e.Value, 1);
             }
         }
+        //Debug.Log()
         affinityValueList = new float[query.infAgentArray.Length];
+        
         foreach (KeyValuePair<int, int> e in jKeys)
         {
-            affinityValueList[e.Key] = (query.influenceValues[e.Key] + ((comparator.influenceValues[e.Value])
-                /compareCounter[e.Value]))*topAffValues[e.Key] /2;
+            affinityValueList[e.Key] = (query.influenceValues[e.Key] + (((comparator.influenceValues[e.Value])
+                /compareCounter[e.Value]))*topAffValues[e.Key] /2);   // topaff är stor för stor
         }
         jUnmatched = new List<int>();
         for (int j = 0; j < comparator.infAgentArray.Length; j++)
@@ -140,12 +143,13 @@ public class MatchingFunctions{
             - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
 
         affinitySum = 0;
+        //Debug.Log(affinityValueList[0]);   //  ger 1
         foreach (float aff in affinityValueList)
         {
             affinitySum += aff;
         }
+        //Debug.Log(affinitySum);
         matchingValue = speedGaussian * (affinitySum - Um);
-
         return matchingValue;
 
     }
@@ -166,9 +170,12 @@ public class MatchingFunctions{
 
         for (int i = 0; i < 40; i++)
         {
-            gauss1 = (float)Math.Exp((Math.Pow((xCoordListCopyk[i] - xCoordListCopyj[i]), 2) + Math.Pow((zCoordListCopyk[i] - zCoordListCopyj[i]), 2) / (1 - speedListCopySubject[i])));
-            gauss2 = (float)Math.Exp((Math.Pow((speedListCopyk[i] - speedListCopyj[i]), 2) / (1 - speedListCopySubject[i])));
-            gauss3 = (float)Math.Exp((Math.Pow((directionListCopyk[i] - directionListCopyj[i]), 2) / (1 - speedListCopySubject[i])));
+            gauss1 = (float)Math.Exp(-(Math.Pow((xCoordListCopyk[i] - xCoordListCopyj[i]), 2) 
+                + Math.Pow((zCoordListCopyk[i] - zCoordListCopyj[i]), 2) / (1 / speedListCopySubject[i])));
+            gauss2 = (float)Math.Exp(-(Math.Pow((speedListCopyk[i] - speedListCopyj[i]), 2) 
+                / (1 / speedListCopySubject[i])));
+            gauss3 = (float)Math.Exp(-(Math.Pow((directionListCopyk[i] - directionListCopyj[i]), 2) 
+                / (1 / speedListCopySubject[i])));
             simVal = gauss1 * gauss2 * gauss3;
             simVals[i] = simVal;
         }
@@ -177,6 +184,7 @@ public class MatchingFunctions{
         {
             Aff = 0;
         }
+        Debug.Log(Aff);
         return Aff;
 
     }

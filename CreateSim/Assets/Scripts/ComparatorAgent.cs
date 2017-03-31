@@ -17,6 +17,14 @@ public class ComparatorAgent {
         directionList = new List<float>();
     }
 
+    public ComparatorAgent(int size)
+    {
+        xCoordList = new List<float>(size);
+        zCoordList = new List<float>(size);
+        speedList = new List<float>(size);
+        directionList = new List<float>(size);
+    }
+
     public void addToTrajectory(float xCoord, float yCoord, float speed, float direction)
     {
         xCoordList.Add(xCoord);
