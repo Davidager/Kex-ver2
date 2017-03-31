@@ -269,11 +269,13 @@ public class CreateSimulation {
         int i = 0;
         foreach (ExampleData exampleData in exampleContainer.examples)
         {
+            //raden under överflödig?
             returnArray[i] = new Configuration();
             ComparatorAgent subAgent = new ComparatorAgent();
             ComparatorAgent[] infAgentArray = new ComparatorAgent[exampleData.frames[0].jAgents.Count];
             float[] influenceValues = new float[infAgentArray.Length];
-            int k = 0;
+            /*int k = 0;
+             är vi säkra på att influenceValues är i samma ordning som influenceagents i databasen?
             foreach (InfluenceValue infValue in exampleData.influenceValues)
             {
                 influenceValues[k] = infValue.value;
@@ -283,6 +285,15 @@ public class CreateSimulation {
             for (int temp = 0; temp < infAgentArray.Length; temp++)
             {
                 infAgentArray[temp] = new ComparatorAgent();
+            }
+            */
+            //7 raderna under istället för det ovan?
+            int k = 0;
+            foreach (InfluenceValue infValue in exampleData.influenceValues)
+            {
+                influenceValues[k] = infValue.value;
+                infAgentArray[k] = new ComparatorAgent();
+                k++;
             }
             foreach (FrameData frameData in exampleData.frames)
             {
@@ -305,6 +316,7 @@ public class CreateSimulation {
             returnArray[i].influenceValues = influenceValues;
             i++;
         }
+        Debug.Log("Alla exampleconfigs skapade");
 
         return returnArray;
     }
