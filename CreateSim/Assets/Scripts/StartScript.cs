@@ -7,11 +7,10 @@ public class StartScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         //trams som behövs
-<<<<<<< HEAD
+
         //List<int> list = new List<int>();
         //list[4] = 2;
-=======
->>>>>>> 1682650df580583a15cf186cacef00df1f9e486f
+
 
         if (!ProtoBuf.Meta.RuntimeTypeModel.Default.IsDefined(typeof(Vector2)))
         {

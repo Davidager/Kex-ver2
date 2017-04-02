@@ -143,12 +143,11 @@ public class MatchingFunctions{
             - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
 
         affinitySum = 0;
-        //Debug.Log(affinityValueList[0]);   //  ger 1
         foreach (float aff in affinityValueList)
         {
             affinitySum += aff;
         }
-        //Debug.Log(affinitySum);
+        //Debug.Log(affinitySum);      // kan blir större än 0 ibland... meningen????  :/   Det är det som gör att matchingvalue blir > 1...   2/4-17 här är felet just nu!
         matchingValue = speedGaussian * (affinitySum - Um);
         return matchingValue;
 
@@ -184,7 +183,7 @@ public class MatchingFunctions{
         {
             Aff = 0;
         }
-        Debug.Log(Aff);
+        //Debug.Log(Aff);
         return Aff;
 
     }

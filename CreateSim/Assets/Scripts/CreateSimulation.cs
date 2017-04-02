@@ -159,7 +159,7 @@ public class CreateSimulation {
                 }
                 affinityValueList.Sort();
                 Debug.Log("check2");
-                                // TA BORT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                
                 checkCollision(affinityValueList, affinityValueDic, agentNumber, false);
             }
             Profiler.EndSample();
@@ -254,8 +254,8 @@ public class CreateSimulation {
             }
             if (collision == false)
             {
-                //Debug.Log(valueList[i]);
-                if (matched) maxTemp = 40 * valueList[i];                
+                Debug.Log(valueList[i]);
+                if (matched) maxTemp = 40 * valueList[i];                // TODO: verkar som att valueList kan bli > 1!
                 else maxTemp = 40;
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
                 //Debug.Log(maxTemp);
