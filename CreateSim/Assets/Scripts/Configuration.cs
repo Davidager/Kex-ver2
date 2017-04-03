@@ -8,6 +8,8 @@ public class Configuration {
     public ComparatorAgent[] infAgentArray;
     public ComparatorAgent subAgent;
     public float[] influenceValues;
+    public Vector2 newOrigin;
+    public float originDirection;
     private Dictionary<int, float> maxInfluenceTable;
     private static float CUTOFF = 0.1f;
     private ComparatorAgent subAgentCopy;

@@ -31,6 +31,7 @@ public class Agent : MonoBehaviour
     private int controlPointNumber; // the control point which the spline is moving towards 
                                     // (starts with 1 (0 is the starting point))
 
+    private static bool first = true;
    
     // Start is used in unity in place of the usual constructor
     void Start ()
@@ -70,8 +71,20 @@ public class Agent : MonoBehaviour
 
         xCoordList.Add(Random.Range(-3.5f, 3.5f));
         zCoordList.Add(Random.Range(-3f, 2.25f));
+
+        // för att testa ett fall där movespline fick exception direkt (förut, måndagen den 3/4)!
+        /*if (first)
+        {
+            xCoordList.Add(-1.475634f);
+            zCoordList.Add(-1.798555f);
+        } else
+        {
+            xCoordList.Add(-0.4729152f);
+            zCoordList.Add(-0.8625353f);
+        }*/
         speedList.Add(Random.Range(0.015f, 0.03f));
         directionList.Add(Random.Range(0f, 2 * Mathf.PI));
+        first = false;
     }
     
     public void initialiseLists()

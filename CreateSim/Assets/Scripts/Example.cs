@@ -127,7 +127,7 @@ public class Example {
     private Vector2 globalToLocalVector2 (Vector2 position)
     {
         Vector2 retvec = new Vector2(position.x - newOrigin.x, position.y - newOrigin.y);
-        retvec = Quaternion.Euler(new Vector3(0, 0, (originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI))*retvec;
+        retvec = Quaternion.Euler(new Vector3(0, 0, (-originDirection + (Mathf.PI / 2)) * 180 / Mathf.PI))*retvec;
         return retvec;
     }
 

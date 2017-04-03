@@ -56,7 +56,7 @@ public class CreateSimulation {
     {
         exampleConfigurations = createExampleConfigurations(exampleContainer);
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 6; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -185,10 +185,15 @@ public class CreateSimulation {
 
     private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic, int agentNumber, bool matched)
     {
-        //Debug.Log(valueList.Count);
+        //*Debug.Log(valueList.Count);
         int i = valueList.Count - 1;
-        originVector = new Vector2(currentQueryConfiguration.subAgent.xCoordList[0], currentQueryConfiguration.subAgent.zCoordList[0]);
-        originDirection = currentQueryConfiguration.subAgent.directionList[0];
+
+        //originVector = new Vector2(currentQueryConfiguration.subAgent.xCoordList[0], currentQueryConfiguration.subAgent.zCoordList[0]);
+        
+        //originDirection = currentQueryConfiguration.subAgent.directionList[0];
+        originVector = currentQueryConfiguration.newOrigin;
+        //*Debug.Log(originVector.x);
+        originDirection = currentQueryConfiguration.originDirection;
         while (i >= 0)
         {
             confIndex = indexDic[valueList[i]];
@@ -230,6 +235,7 @@ public class CreateSimulation {
                             , agentk.Value.speedList[jj], agentk.Value.directionList[jj]);
                     }
                     fillConfig(agentkCopy);
+                    //*Debug.Log(agentkCopy.zCoordList[0]);
                     for (int temp = 0; temp < 40; temp++)
                     {
                         kPositionGlobal = new Vector2(agentkCopy.xCoordList[temp], agentkCopy.zCoordList[temp]);
@@ -240,26 +246,33 @@ public class CreateSimulation {
                         agentkCopy.xCoordList[temp] = tempVector.x;
                         agentkCopy.zCoordList[temp] = tempVector.y;
                     }
+                    //*Debug.Log(agentkCopy.zCoordList[0]);
 
                     for (int temp = 1; temp < 40; temp++)
                     {
                         xDiff = agentkCopy.xCoordList[temp] - agentqCopy.xCoordList[temp];
                         //*Debug.Log(xDiff);
                         zDiff = agentkCopy.zCoordList[temp] - agentqCopy.zCoordList[temp];
-                        if (xDiff > -1*diameterCUTOFF && xDiff < diameterCUTOFF)
+                        if (xDiff > -1*diameterCUTOFF && xDiff < diameterCUTOFF 
+                            && zDiff > -1 * diameterCUTOFF && zDiff < diameterCUTOFF)
                         {
+                            //Debug.Log(agentkCopy.xCoordList[temp] + "+" + temp);
+                            //Debug.Log(agentqCopy.xCoordList[temp] + "+" + temp);
+
                             collision = true;
                             break;
 
                         }
-                        if (zDiff > -1 * diameterCUTOFF && zDiff < diameterCUTOFF)
+                        /*if (zDiff > -1 * diameterCUTOFF && zDiff < diameterCUTOFF)
                         {
+                            Debug.Log(agentkCopy.zCoordList[temp] + "+" + temp);
+                            Debug.Log(agentqCopy.zCoordList[temp] + "+" + temp);
                             collision = true;
                             break;
 
-                        }
+                        }*/
                     }
-                    //Debug.Log("collisioncheck2");
+                    //*Debug.Log("collisioncheck2");
                     if (collision == true)
                     {
                         //*Debug.Log("collision = true");
@@ -279,14 +292,23 @@ public class CreateSimulation {
                 for (int temp = 1; temp < (int)maxTemp; temp++)
                 {
                     qPosition = new Vector2(agentqCopy.xCoordList[temp], agentqCopy.zCoordList[temp]);
+                    qPosition = localToGlobalVector2(qPosition, originVector, originDirection);
+                    /*Debug.Log(qPosition.x);
+                    Debug.Log(qPosition.y);
+                    Debug.Log(activeAgentTable[agentNumber].xCoordList[0]);
+                    Debug.Log(activeAgentTable[agentNumber].zCoordList[0]);*/
+
+                    
                     /*activeAgentTable[agentNumber].xCoordList[temp] = qPosition.x;
                     activeAgentTable[agentNumber].zCoordList[temp] = qPosition.y;
                     activeAgentTable[agentNumber].speedList[temp] = agentqCopy.speedList[temp];
                     activeAgentTable[agentNumber].directionList[temp] = agentqCopy.directionList[temp];*/
                     activeAgentTable[agentNumber].addToTrajectory(qPosition.x, qPosition.y
-                        , agentqCopy.speedList[temp], agentqCopy.directionList[temp]);
+                        , agentqCopy.speedList[temp], localToGlobalDirection(
+                            agentqCopy.directionList[temp], originDirection));
                 }
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
+                //*Debug.Log(i);
                 break;
 
             }
@@ -303,7 +325,10 @@ public class CreateSimulation {
         Vector2 newOrigin = new Vector2(subjectAgent.xCoordList[0], subjectAgent.zCoordList[0]);
         float originDirection = subjectAgent.directionList[0];
 
+
         Configuration retConf = new Configuration();
+        retConf.newOrigin = newOrigin;
+        retConf.originDirection = originDirection;
         int j = 0;
         retConf.infAgentArray = new ComparatorAgent[activeAgentTable.Count - 1];
         Profiler.BeginSample("OtherPart");
@@ -409,7 +434,7 @@ public class CreateSimulation {
     private static Vector2 globalToLocalVector2(Vector2 position, Vector2 newOrigin, float originDirection)
     {
         Vector2 retvec = new Vector2(position.x - newOrigin.x, position.y - newOrigin.y);
-        retvec = Quaternion.Euler(new Vector3(0, 0, (originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * retvec;
+        retvec = Quaternion.Euler(new Vector3(0, 0, (-originDirection + (Mathf.PI / 2)) * 180 / Mathf.PI)) * retvec;
         return retvec;
     }
 
@@ -423,7 +448,7 @@ public class CreateSimulation {
 
     private static Vector2 localToGlobalVector2(Vector2 position, Vector2 newOrigin, float originDirection)
     {
-        Vector2 retvec = Quaternion.Euler(new Vector3(0, 0, -(originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * position;
+        Vector2 retvec = Quaternion.Euler(new Vector3(0, 0, (originDirection - (Mathf.PI / 2)) * 180 / Mathf.PI)) * position;
         retvec = new Vector2(retvec.x + newOrigin.x, retvec.y + newOrigin.y);
         return retvec;
     }
