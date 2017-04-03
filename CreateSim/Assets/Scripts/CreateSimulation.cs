@@ -15,7 +15,7 @@ public class CreateSimulation {
     //set matching cutoff to the right level
     private static float matchingCUTOFF = 0.8f;
     //set inglencecutoff to the sama as in database
-    private static float influenceCUTOFF = 0.3f;
+    private static float influenceCUTOFF = 0.1f;
     private static ComparatorAgent exampleSubAgent;
     private static int confIndex = new int();
     //private static float matchingValue = new float();
@@ -30,7 +30,7 @@ public class CreateSimulation {
     private static float maxTemp;
     private static Vector2 qPosition;
     //set radiusCUTOFF
-    private static float radiusCUTOFF = 0.00002f;
+    private static float diameterCUTOFF = 0.2f;  //0.0004
     private static float kDirectionGlobal;
     private static Vector2 originVector;
     private static float originDirection;
@@ -62,6 +62,12 @@ public class CreateSimulation {
             activeAgentTable[i].setAgentNumber(i);
             activeAgentTable[i].setCreateSimulation(this);
         }
+
+        /*  För att testa fram diameterCUTOFF
+        GameObject.Find("Ground").AddComponent(typeof(TestAgent));
+        GameObject.Find("Ground").AddComponent(typeof(TestAgent));*/
+
+
     }
 
     public void removeFromActiveAgentTable(int agentNumber)
@@ -112,12 +118,12 @@ public class CreateSimulation {
         Agentq.directionList = new List<float>();
         Agentq.directionList.Add(tempDirection);
         //Debug.Log(Agentq.xCoordList.Count);
-        Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
+        //*Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
 
 
         if (currentQueryConfiguration.influenceValues.Length == 0) {
             fillConfig(Agentq);
-            Debug.Log("if fill grejen");
+            //*Debug.Log("if fill grejen");
         }
         else
         {
@@ -142,11 +148,11 @@ public class CreateSimulation {
                     negativeMatchingIndexList.Add(temp);
                 }
             }
-            Debug.Log(matchingFunctionList.Count);
+            //*Debug.Log(matchingFunctionList.Count);
             Profiler.EndSample();
             Profiler.BeginSample("updatePart2");
             matchingFunctionList.Sort();
-            Debug.Log("check1");
+            //*Debug.Log("check1");
             checkCollision(matchingFunctionList, matchingFunctionDic, agentNumber, true);
 
             if (Agentq.xCoordList.Count < 2)
@@ -154,11 +160,14 @@ public class CreateSimulation {
                 foreach (int confIndex in negativeMatchingIndexList)
                 {
                     tempAff = MatchingFunctions.affinityFunction(currentQueryConfiguration.subAgent, currentQueryConfiguration.subAgent, exampleConfigurations[confIndex].subAgent);
-                    affinityValueList.Add(tempAff);
-                    affinityValueDic.Add(tempAff, confIndex);
+                    if (!affinityValueDic.ContainsKey(tempAff))
+                    { // tillagd 03/04
+                        affinityValueList.Add(tempAff);
+                        affinityValueDic.Add(tempAff, confIndex);
+                    }
                 }
                 affinityValueList.Sort();
-                Debug.Log("check2");
+                //*Debug.Log("check2");
                                 
                 checkCollision(affinityValueList, affinityValueDic, agentNumber, false);
             }
@@ -168,12 +177,15 @@ public class CreateSimulation {
        
         matchingFunctionList.Clear();
         affinityValueList.Clear();
+        matchingFunctionDic.Clear();
+        negativeMatchingIndexList.Clear();
+        affinityValueDic.Clear();
         
     }
 
     private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic, int agentNumber, bool matched)
     {
-        Debug.Log(valueList.Count);
+        //Debug.Log(valueList.Count);
         int i = valueList.Count - 1;
         originVector = new Vector2(currentQueryConfiguration.subAgent.xCoordList[0], currentQueryConfiguration.subAgent.zCoordList[0]);
         originDirection = currentQueryConfiguration.subAgent.directionList[0];
@@ -207,6 +219,10 @@ public class CreateSimulation {
             {
                 if (!(agentk.Key == agentNumber))
                 {
+                    if(agentk.Value == activeAgentTable[agentNumber])
+                    {
+                        //*Debug.Log("WOWOWOWOOWOWOWOWO");
+                    }
                     agentkCopy = new ComparatorAgent(40);
                     for (int jj = 0; jj < agentk.Value.xCoordList.Count; jj++)
                     {
@@ -225,27 +241,28 @@ public class CreateSimulation {
                         agentkCopy.zCoordList[temp] = tempVector.y;
                     }
 
-                    for (int temp = 0; temp < 40; temp++)
+                    for (int temp = 1; temp < 40; temp++)
                     {
                         xDiff = agentkCopy.xCoordList[temp] - agentqCopy.xCoordList[temp];
+                        //*Debug.Log(xDiff);
                         zDiff = agentkCopy.zCoordList[temp] - agentqCopy.zCoordList[temp];
-                        if (xDiff > -1*radiusCUTOFF && xDiff < radiusCUTOFF)
+                        if (xDiff > -1*diameterCUTOFF && xDiff < diameterCUTOFF)
                         {
                             collision = true;
                             break;
 
                         }
-                        if (zDiff > -1 * radiusCUTOFF && zDiff < radiusCUTOFF)
+                        if (zDiff > -1 * diameterCUTOFF && zDiff < diameterCUTOFF)
                         {
                             collision = true;
                             break;
 
                         }
                     }
-                    Debug.Log("collisioncheck2");
+                    //Debug.Log("collisioncheck2");
                     if (collision == true)
                     {
-                        Debug.Log("collision = true");
+                        //*Debug.Log("collision = true");
                         break;
                         
                     }
@@ -254,7 +271,7 @@ public class CreateSimulation {
             }
             if (collision == false)
             {
-                Debug.Log(valueList[i]);
+                //*Debug.Log(valueList[i]);
                 if (matched) maxTemp = 40 * valueList[i];                // TODO: verkar som att valueList kan bli > 1!
                 else maxTemp = 40;
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
@@ -290,12 +307,12 @@ public class CreateSimulation {
         int j = 0;
         retConf.infAgentArray = new ComparatorAgent[activeAgentTable.Count - 1];
         Profiler.BeginSample("OtherPart");
-        Debug.Log("otherPart");
+        //Debug.Log("otherPart");
         int c = 0;
         foreach (KeyValuePair<int, Agent> e in activeAgentTable)
         {
             int b = 0;
-            Debug.Log(e.Value.xCoordList.Count);                              //DENNA!!!!!
+            //Debug.Log(e.Value.xCoordList.Count);                              //DENNA!!!!!
             ComparatorAgent tempComparatorAgent = new ComparatorAgent();
             for (int i = 0; i < e.Value.xCoordList.Count; i++)
             {

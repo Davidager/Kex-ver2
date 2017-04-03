@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class MatchingFunctions{
 
@@ -56,17 +57,18 @@ public class MatchingFunctions{
         
         outerAffVals = new Dictionary<int, Dictionary<int, float>>();
         //infAgentDic ska vara indexerad från 0 och inte hoppa över någon key
+        Profiler.BeginSample("affinity i matching");
         for (int k = 0; k < query.infAgentArray.Length; k++)
         {
             innerAffVals = new Dictionary<int, float>();
             for (int j = 0; j < comparator.infAgentArray.Length; j++)
             {
-                
                 affValue = affinityFunction(query.subAgent, query.infAgentArray[k], comparator.infAgentArray[j]);
                 innerAffVals.Add(j, affValue);               
             }
             outerAffVals.Add(k, innerAffVals);
         }
+        Profiler.EndSample();
 
         //jKeys = new int[query.infAgentArray.Length];
         jKeys = new Dictionary<int, int>();
@@ -107,7 +109,7 @@ public class MatchingFunctions{
         foreach (KeyValuePair<int, int> e in jKeys)
         {
             affinityValueList[e.Key] = (query.influenceValues[e.Key] + (((comparator.influenceValues[e.Value])
-                /compareCounter[e.Value]))*topAffValues[e.Key] /2);   // topaff är stor för stor
+                /compareCounter[e.Value])))*topAffValues[e.Key]/2;   
         }
         jUnmatched = new List<int>();
         for (int j = 0; j < comparator.infAgentArray.Length; j++)
@@ -139,7 +141,7 @@ public class MatchingFunctions{
         }
         Um = (sumInfk + sumInfj)/2;
     
-        speedGaussian = (float)Math.Exp(Math.Pow(comparator.subAgent.speedList[0] 
+        speedGaussian = (float)Math.Exp(-Math.Pow(comparator.subAgent.speedList[0] 
             - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
 
         affinitySum = 0;
@@ -147,7 +149,8 @@ public class MatchingFunctions{
         {
             affinitySum += aff;
         }
-        //Debug.Log(affinitySum);      // kan blir större än 0 ibland... meningen????  :/   Det är det som gör att matchingvalue blir > 1...   2/4-17 här är felet just nu!
+        //Debug.Log(affinityValueList.Length);
+        //Debug.Log(affinitySum);      // kan blir större än 1 ibland... meningen????  :/   Det är det som gör att matchingvalue blir > 1...   2/4-17 här är felet just nu!
         matchingValue = speedGaussian * (affinitySum - Um);
         return matchingValue;
 
@@ -157,6 +160,7 @@ public class MatchingFunctions{
     {
         //FillConfig(k);
         //FillConfig(j);
+        //Profiler.BeginSample("listdelen");
         xCoordListCopyk = k.xCoordList;
         zCoordListCopyk = k.zCoordList;
         speedListCopyk = k.speedList;
@@ -166,19 +170,38 @@ public class MatchingFunctions{
         speedListCopyj = j.speedList;
         directionListCopyj = j.directionList;
         speedListCopySubject = querySub.speedList;
+        //Profiler.EndSample();
 
         for (int i = 0; i < 40; i++)
         {
-            gauss1 = (float)Math.Exp(-(Math.Pow((xCoordListCopyk[i] - xCoordListCopyj[i]), 2) 
+            //Profiler.BeginSample("gaussdelen");  //100000 per assignTrajectory   40%
+            /*gauss1 = (float)Math.Exp(-(Math.Pow((xCoordListCopyk[i] - xCoordListCopyj[i]), 2) 
                 + Math.Pow((zCoordListCopyk[i] - zCoordListCopyj[i]), 2) / (1 / speedListCopySubject[i])));
             gauss2 = (float)Math.Exp(-(Math.Pow((speedListCopyk[i] - speedListCopyj[i]), 2) 
                 / (1 / speedListCopySubject[i])));
             gauss3 = (float)Math.Exp(-(Math.Pow((directionListCopyk[i] - directionListCopyj[i]), 2) 
+                / (1 / speedListCopySubject[i])));*/
+            gauss1 = fastExp(-(myPowSquared(xCoordListCopyk[i] - xCoordListCopyj[i])
+                + myPowSquared(zCoordListCopyk[i] - zCoordListCopyj[i]) / (1 / speedListCopySubject[i])));
+            gauss2 = fastExp(-(myPowSquared(speedListCopyk[i] - speedListCopyj[i])
                 / (1 / speedListCopySubject[i])));
+            gauss3 = fastExp(-(myPowSquared(directionListCopyk[i] - directionListCopyj[i])
+                / (1 / speedListCopySubject[i])));
+
+
+
+
+            //Profiler.EndSample();
+            ////Profiler.BeginSample("multiplikationsdelen");   // 8%
             simVal = gauss1 * gauss2 * gauss3;
+            //Profiler.EndSample();
+
             simVals[i] = simVal;
         }
+
+        //Profiler.BeginSample("averagedelen");    // 0%
         Aff = Average(simVals);
+        //Profiler.EndSample();
         if (Aff < affinityCUTOFF)
         {
             Aff = 0;
@@ -186,6 +209,18 @@ public class MatchingFunctions{
         //Debug.Log(Aff);
         return Aff;
 
+    }
+
+    public static float fastExp(float val)
+    {
+        
+        long tmp = (long)(1512775 * (double)val + (1072693248 - 60801));
+        return (float)BitConverter.Int64BitsToDouble(tmp << 32);
+    }
+
+    private static float myPowSquared(float x)
+    {
+        return x * x;
     }
 
     

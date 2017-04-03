@@ -55,10 +55,10 @@ public class Agent : MonoBehaviour
     {
 
         Profiler.BeginSample("assignTrajectory");
-        Debug.Log("yo111");
+        //*Debug.Log("yo111");
         CreateSimulation.assignTrajectory(this, agentNumber);
         Profiler.EndSample();
-        Debug.Log(xCoordList.Count);
+        //*Debug.Log(xCoordList.Count);
         moveSpline();
         updateCounter++;
       
