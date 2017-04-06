@@ -161,7 +161,7 @@ public class MatchingFunctions{
         //FillConfig(k);
         //FillConfig(j);
         //Profiler.BeginSample("listdelen");
-        xCoordListCopyk = k.xCoordList;
+        /*xCoordListCopyk = k.xCoordList;
         zCoordListCopyk = k.zCoordList;
         speedListCopyk = k.speedList;
         directionListCopyk = k.directionList;
@@ -169,7 +169,7 @@ public class MatchingFunctions{
         zCoordListCopyj = j.zCoordList;
         speedListCopyj = j.speedList;
         directionListCopyj = j.directionList;
-        speedListCopySubject = querySub.speedList;
+        speedListCopySubject = querySub.speedList;*/
         //Profiler.EndSample();
 
         for (int i = 0; i < 40; i++)
@@ -181,22 +181,28 @@ public class MatchingFunctions{
                 / (1 / speedListCopySubject[i])));
             gauss3 = (float)Math.Exp(-(Math.Pow((directionListCopyk[i] - directionListCopyj[i]), 2) 
                 / (1 / speedListCopySubject[i])));*/
-            gauss1 = fastExp(-(myPowSquared(xCoordListCopyk[i] - xCoordListCopyj[i])
+            /*gauss1 = fastExp(-(myPowSquared(xCoordListCopyk[i] - xCoordListCopyj[i])
                 + myPowSquared(zCoordListCopyk[i] - zCoordListCopyj[i]) / (1 / speedListCopySubject[i])));
             gauss2 = fastExp(-(myPowSquared(speedListCopyk[i] - speedListCopyj[i])
                 / (1 / speedListCopySubject[i])));
             gauss3 = fastExp(-(myPowSquared(directionListCopyk[i] - directionListCopyj[i])
-                / (1 / speedListCopySubject[i])));
+                / (1 / speedListCopySubject[i])));*/
+            gauss1 = Mathf.Exp(-((k.xCoordList[i] - j.xCoordList[i]) * (k.xCoordList[i] - j.xCoordList[i])
+                + (k.zCoordList[i] - j.zCoordList[i]) * (k.zCoordList[i] - j.zCoordList[i])
+                + (k.speedList[i] - j.speedList[i]) * (k.speedList[i] - j.speedList[i])
+                + (k.directionList[i] - j.directionList[i]) * (k.directionList[i] - j.directionList[i])
+                )/ (1 / querySub.speedList[i]));
 
 
 
 
             //Profiler.EndSample();
             ////Profiler.BeginSample("multiplikationsdelen");   // 8%
-            simVal = gauss1 * gauss2 * gauss3;
+            //*simVal = gauss1 * gauss2 * gauss3;
             //Profiler.EndSample();
 
-            simVals[i] = simVal;
+            //*simVals[i] = simVal;
+            simVals[i] = gauss1;
         }
 
         //Profiler.BeginSample("averagedelen");    // 0%

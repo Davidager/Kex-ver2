@@ -5,7 +5,6 @@ using System.IO;
 using ProtoBuf;
 
 public class StartScript : MonoBehaviour {
-
 	// Use this for initialization
 	void Start () {
         if (!ProtoBuf.Meta.RuntimeTypeModel.Default.IsDefined(typeof(Vector2)))
