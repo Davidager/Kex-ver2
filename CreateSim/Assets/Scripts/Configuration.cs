@@ -11,8 +11,9 @@ public class Configuration {
     public Vector2 newOrigin;
     public float originDirection;
     private Dictionary<int, float> maxInfluenceTable;
-    private static float CUTOFF = 0.1f;
+    private static float CUTOFF = 0.3f;
     private ComparatorAgent subAgentCopy;
+    public int exampleNumber;
 
     public Configuration()
     {

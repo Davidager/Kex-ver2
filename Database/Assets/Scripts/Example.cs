@@ -10,7 +10,7 @@ public class Example {
     private int influences;
     private float iSpeed;
     private float iDirection;
-    private static float CUTOFF = 0.1f;
+    private static float CUTOFF = 0.3f;
 
     private float influenceSum;
     private float maxInfluence;

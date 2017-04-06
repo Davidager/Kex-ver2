@@ -15,7 +15,7 @@ public class CreateSimulation {
     //set matching cutoff to the right level
     private static float matchingCUTOFF = 0.8f;
     //set inglencecutoff to the sama as in database
-    private static float influenceCUTOFF = 0.1f;
+    //private static float influenceCUTOFF = 0.3f;
     private static ComparatorAgent exampleSubAgent;
     private static int confIndex = new int();
     //private static float matchingValue = new float();
@@ -50,13 +50,16 @@ public class CreateSimulation {
     private static int matchingIndex = new int();
     private static Dictionary<int, Agent> activeAgentTable;
     private static Configuration[] exampleConfigurations;
+    private static List<List<Configuration>> sortedExampleConfigurations;
     private static Configuration currentQueryConfiguration = null;
 
     public CreateSimulation(ExampleContainer exampleContainer)
     {
         exampleConfigurations = createExampleConfigurations(exampleContainer);
+        sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
+
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 8; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -68,6 +71,58 @@ public class CreateSimulation {
         GameObject.Find("Ground").AddComponent(typeof(TestAgent));*/
 
 
+    }
+
+    // för att skapa en sorts sortering av configs, listan har listor med configs som ska vara lika varandra. 
+    private List<List<Configuration>> setUpSortedExampleConfigurations(Configuration[] exampleConfigurations)
+    {
+        List<List<Configuration>> outerList = new List<List<Configuration>>();
+        System.Random rnd = new System.Random();
+        int numberOfConfigs = exampleConfigurations.Length;
+        List<int> randomNumberList = new List<int>();
+
+        while (randomNumberList.Count < 30)
+        {
+            int randomNum = rnd.Next(numberOfConfigs);
+            if (!randomNumberList.Contains(randomNum))
+            {
+                randomNumberList.Add(randomNum);
+            }
+        }
+
+        for (int i = 0; i < 30; i++)
+        {
+            outerList.Add(new List<Configuration>());
+            outerList[i].Add(exampleConfigurations[randomNumberList[i]]);
+        }
+
+        float maxVal;
+        float currentVal;
+        List<Configuration> insertList;
+        for (int i = 0; i < numberOfConfigs; i++)
+        {
+            if (!randomNumberList.Contains(i))
+            {
+                maxVal = 0;
+                insertList = new List<Configuration>();
+                foreach (List<Configuration> innerList in outerList)
+                {
+                    currentVal = MatchingFunctions.matchingFunction(exampleConfigurations[i], innerList[0]);
+                    if (currentVal > maxVal)
+                    {
+                        maxVal = currentVal;
+                        insertList = innerList;
+                    }
+                }
+                insertList.Add(exampleConfigurations[i]);
+
+            }
+        }
+        foreach (List<Configuration> innerList in outerList)
+        {
+            Debug.Log(innerList.Count);
+        }
+        return outerList;
     }
 
     public void removeFromActiveAgentTable(int agentNumber)
@@ -120,17 +175,18 @@ public class CreateSimulation {
         //Debug.Log(Agentq.xCoordList.Count);
         //*Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
 
-
+        //Debug.Log(currentQueryConfiguration.infAgentArray.Length);
         if (currentQueryConfiguration.influenceValues.Length == 0) {
             fillConfig(Agentq);
             //*Debug.Log("if fill grejen");
         }
         else
         {
-
-            Profiler.BeginSample("updatePart1");
+            // gamla sättet att jämföra alla examples för varje query
+            /*Profiler.BeginSample("updatePart1");
             for (int temp = 0; temp < exampleConfigurations.Length; temp++)
             {
+                
                 //Debug.Log(currentQueryConfiguration.infAgentArray.Length);     ger 1
                 Profiler.BeginSample("MatchingFunctionUpdateCall");
                 float matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, exampleConfigurations[temp]);
@@ -149,7 +205,89 @@ public class CreateSimulation {
                 }
             }
             //*Debug.Log(matchingFunctionList.Count);
-            Profiler.EndSample();
+            Profiler.EndSample();*/
+
+            //nya :      VIKTIGT kolla så att den oftast nöjer sig med matching-värdena
+            //float maxBucketValue = 0;
+            //List<Configuration> maxBucket;
+            SortedList<float, List<Configuration>> sortedBuckets = new SortedList<float, List<Configuration>>();
+
+            foreach (List<Configuration> innerList in sortedExampleConfigurations)
+            {
+                float matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, innerList[0]);
+                /*if (matchingValue > maxBucketValue)
+                {
+                    maxBucketValue = matchingValue;
+                    maxBucket = innerList;
+                }*/
+                while(sortedBuckets.ContainsKey(matchingValue))
+                {
+                    matchingValue = matchingValue + 0.001f;
+                }
+                sortedBuckets.Add(matchingValue, innerList);
+            }
+
+            
+            List<Configuration> currentBucket;
+            int bucketCounter = 0;
+            IList<float> sortedKeys = sortedBuckets.Keys;
+
+            while (matchingFunctionList.Count < 40 && bucketCounter < sortedBuckets.Count)   // VIKTIGT - kan sättas till högre ifall det behövs 
+            {
+                float bucketKey = 0;
+                try
+                {
+                    bucketKey = sortedKeys[sortedKeys.Count - (bucketCounter + 1)];
+                } catch (ArgumentOutOfRangeException e)
+                {
+                    Debug.Log(sortedKeys.Count);
+                    Debug.Log(bucketCounter);
+                    throw new Exception("Exception yo");
+
+                }
+                
+                currentBucket = sortedBuckets[bucketKey];
+                if (bucketKey > 0)
+                {
+                    matchingFunctionList.Add(bucketKey);
+                    if (!matchingFunctionDic.ContainsKey(bucketKey))
+                    {
+                        matchingFunctionDic.Add(bucketKey, currentBucket[0].exampleNumber);
+                    }
+                }
+                
+                if (currentBucket.Count > 1)
+                {
+                    for (int i = 1; i < currentBucket.Count; i++)
+                    {
+                        if (matchingFunctionList.Count < 40)
+                        {
+                            float matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration
+                            , currentBucket[i]);
+                            if (matchingValue > 0)
+                            {
+                                matchingFunctionList.Add(matchingValue);
+                                if (!matchingFunctionDic.ContainsKey(matchingValue))
+                                {
+                                    matchingFunctionDic.Add(matchingValue, currentBucket[i].exampleNumber);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                bucketCounter++;
+
+            }
+            for (int temp = 0; temp < exampleConfigurations.Length; temp++)
+            {
+                if (!matchingFunctionDic.ContainsValue(temp)) {
+                    negativeMatchingIndexList.Add(temp);
+                }
+            }
+            Debug.Log(matchingFunctionList.Count);
+
+
             Profiler.BeginSample("updatePart2");
             matchingFunctionList.Sort();
             //*Debug.Log("check1");
@@ -298,7 +436,7 @@ public class CreateSimulation {
                     Debug.Log(activeAgentTable[agentNumber].xCoordList[0]);
                     Debug.Log(activeAgentTable[agentNumber].zCoordList[0]);*/
 
-                    
+
                     /*activeAgentTable[agentNumber].xCoordList[temp] = qPosition.x;
                     activeAgentTable[agentNumber].zCoordList[temp] = qPosition.y;
                     activeAgentTable[agentNumber].speedList[temp] = agentqCopy.speedList[temp];
@@ -309,6 +447,7 @@ public class CreateSimulation {
                 }
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
                 //*Debug.Log(i);
+                //Debug.Log(exampleConfigurations[indexDic[valueList[i]]].infAgentArray.Length);
                 break;
 
             }
@@ -370,6 +509,7 @@ public class CreateSimulation {
         Profiler.BeginSample("FillandCalc");
         retConf.fillAndCalcInfluences();
         Profiler.EndSample();
+
         return retConf;
     }
 
@@ -381,6 +521,7 @@ public class CreateSimulation {
         {
             //raden under överflödig?
             returnArray[i] = new Configuration();
+            returnArray[i].exampleNumber = i;
             ComparatorAgent subAgent = new ComparatorAgent();
             ComparatorAgent[] infAgentArray = new ComparatorAgent[exampleData.frames[0].jAgents.Count];
             float[] influenceValues = new float[infAgentArray.Length];
@@ -427,7 +568,11 @@ public class CreateSimulation {
             i++;
         }
         Debug.Log("Alla exampleconfigs skapade");
-
+        /*Debug.Log(returnArray.Length);
+        foreach (Configuration config in returnArray)
+        {
+            Debug.Log(config.infAgentArray.Length);
+        }*/
         return returnArray;
     }
 
