@@ -25,6 +25,7 @@ public class MatchingFunctions{
     private static float sumInfj;
     private static float Um;
     private static float speedGaussian;
+    private static float speedGaussianConstant = 200000;
     private static float affinitySum;
     private static float matchingValue;
     private static float topAffValue = 0;
@@ -141,9 +142,8 @@ public class MatchingFunctions{
         }
         Um = (sumInfk + sumInfj)/2;
     
-        speedGaussian = (float)Math.Exp(-Math.Pow(comparator.subAgent.speedList[0] 
-            - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0]);
-
+        speedGaussian = Mathf.Exp(-Mathf.Pow(comparator.subAgent.speedList[0] 
+            - query.subAgent.speedList[0], 2) * query.subAgent.speedList[0] * speedGaussianConstant);
         affinitySum = 0;
         foreach (float aff in affinityValueList)
         {

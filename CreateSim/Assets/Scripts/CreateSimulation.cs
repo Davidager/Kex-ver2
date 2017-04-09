@@ -59,7 +59,7 @@ public class CreateSimulation {
         sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
 
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 6; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -285,7 +285,7 @@ public class CreateSimulation {
                     negativeMatchingIndexList.Add(temp);
                 }
             }
-            Debug.Log(matchingFunctionList.Count);
+            //Debug.Log(matchingFunctionList.Count);
 
 
             Profiler.BeginSample("updatePart2");

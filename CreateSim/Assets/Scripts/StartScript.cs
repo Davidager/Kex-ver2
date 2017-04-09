@@ -28,6 +28,7 @@ public class StartScript : MonoBehaviour {
         }
         new CreateSimulation(ReadDatabase.readDatabase());
         UnityEngine.Debug.Log("End of code; finished");
+        Time.fixedDeltaTime = 0.04f;
         /*float gauss1 = new float { };
         float gauss2 = new float { };
         float gauss3 = new float { };
