@@ -59,7 +59,7 @@ public class CreateSimulation {
         sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
 
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 12; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("Ground").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -178,6 +178,7 @@ public class CreateSimulation {
         //Debug.Log(currentQueryConfiguration.infAgentArray.Length);
         if (currentQueryConfiguration.influenceValues.Length == 0) {
             fillConfig(Agentq);
+            // ISTÄLLET: GE DEN EN TRAJECTORY FRÅN DEM SOM INTE HAR NÅGRA INFLUENCES PÅ SIG I DATABASEN (FÖR SÅNA FINNS JU)
             //*Debug.Log("if fill grejen");
         }
         else
@@ -423,7 +424,8 @@ public class CreateSimulation {
             if (collision == false)
             {
                 //*Debug.Log(valueList[i]);
-                if (matched) maxTemp = 40 * valueList[i];                // TODO: verkar som att valueList kan bli > 1!
+                Debug.Log(matched);
+                if (matched) maxTemp = 40 * valueList[i];                // TODO: KOLLA HUR MÅNGA SOM ÄR MATCHED OCH HUR MÅNGA SOM INTE ÄR DET.
                 else maxTemp = 40;
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
                 //Debug.Log(maxTemp);

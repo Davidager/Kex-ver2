@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fb3fbdde62338f441b55ac30f4145490
+timeCreated: 1485098006
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - textAsset: {instanceID: 0}
+  - CylinderPre: {fileID: 4896501011959124, guid: 14b82d32d1d82964e95d6f61f88fe492,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -9,10 +9,11 @@ public class Agent : MonoBehaviour
     private float[] coordArray; //coordArray includes the framenumber for the pair of coords in the order x z framenumber
     private GameObject movingSpline;
     private Transform movingSplineTransform;
-    public GameObject CylinderPre;
-    public GameObject Nose;
-    private GameObject nose;
-    private Transform noseTransform;
+    //public GameObject CylinderPre;
+    public GameObject HumanoidAgentNoRigid;
+    //public GameObject Nose;
+    //private GameObject nose;
+    //private Transform noseTransform;
     private float noseRadius;
     private int agentNumber;
 
@@ -36,8 +37,9 @@ public class Agent : MonoBehaviour
     // Start is used in unity in place of the usual constructor
     void Awake ()
     {
-        CylinderPre = Resources.Load("CylinderPre") as GameObject;
-        Nose = Resources.Load("Nose") as GameObject;
+        //CylinderPre = Resources.Load("CylinderPre") as GameObject;
+        HumanoidAgentNoRigid = Resources.Load("HumanoidAgentNoRigid") as GameObject;
+        //Nose = Resources.Load("Nose") as GameObject;
         noseRadius = 0.69f;
         yHeightCoord = 0.2f;
 
@@ -135,12 +137,14 @@ public class Agent : MonoBehaviour
         float startz = zCoordList[0];
 
         Vector3 startPosition = new Vector3(startx, yHeightCoord, startz);
-        movingSpline = Instantiate(CylinderPre, startPosition, Quaternion.identity);
+        //movingSpline = Instantiate(CylinderPre, startPosition, Quaternion.identity);
+        movingSpline = Instantiate(HumanoidAgentNoRigid, startPosition, Quaternion.identity);
         movingSplineTransform = movingSpline.transform;
 
-        nose = Instantiate(Nose, Vector3.zero, Quaternion.identity);
+        /*nose = Instantiate(Nose, Vector3.zero, Quaternion.identity);
         noseTransform = nose.transform;
-        noseTransform.parent = movingSplineTransform;
+        noseTransform.parent = movingSplineTransform;*/
+
         changeLookingDirection(directionList[0]);
         
 
@@ -187,10 +191,14 @@ public class Agent : MonoBehaviour
 
     private void changeLookingDirection (float direction)
     {
-        float xCoord = -noseRadius * Mathf.Sin(direction - Mathf.PI/2);
-        float zCoord = noseRadius * Mathf.Cos(direction - Mathf.PI / 2);
+
+        /*float xCoord = -noseRadius * Mathf.Sin(direction - Mathf.PI/2);
+        float zCoord = noseRadius * Mathf.Cos(direction - Mathf.PI / 2);*/
+        float xCoord = -1 * Mathf.Sin(direction - Mathf.PI/2);
+        float zCoord =  Mathf.Cos(direction - Mathf.PI / 2);
         //Debug.Log("x: " + xCoord + " z: " + zCoord + " number:" + agentNumber);
-        noseTransform.localPosition = new Vector3(xCoord, 0.784f, zCoord);
+        //noseTransform.localPosition = new Vector3(xCoord, 0.784f, zCoord);
+        movingSplineTransform.rotation = Quaternion.LookRotation(new Vector3(xCoord, 0, zCoord));
     }
 
 
