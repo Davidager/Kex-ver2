@@ -13,7 +13,7 @@ public class ReadDatabase{
 
 
     //public ExampleContainer exampleContainer;
-    public static ExampleContainer readDatabase() {
+    public static DatabaseWrapper readDatabase() {
         /*XmlSerializer serializer = new XmlSerializer(typeof(ExampleContainer));
         Stream fileReader = new FileStream(@"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt", FileMode.Open);
         ExampleContainer exampleContainer;
@@ -23,8 +23,8 @@ public class ReadDatabase{
         Debug.Log(exampleContainer.examples.Count);*/
         string desktopPath = Environment.GetFolderPath(
                          System.Environment.SpecialFolder.DesktopDirectory);
-        return Serializer.Deserialize<ExampleContainer>(
-            new FileStream(desktopPath + @"\database1.proto", FileMode.Open, FileAccess.Read));
+        return Serializer.Deserialize<DatabaseWrapper>(
+            new FileStream(desktopPath + @"\database2.proto", FileMode.Open, FileAccess.Read));
 
         /*var doc = XDocument.Load(@"C:\Users\David\Documents\GitHub\Kex\Database\xmlTest.txt");
         var authors = doc.Root.Elements().Select(x => x.Element("Example"));

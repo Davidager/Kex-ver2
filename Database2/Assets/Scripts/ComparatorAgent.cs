@@ -1,13 +1,12 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using ProtoBuf;
 
 [Serializable]
 [ProtoContract]
-public class ComparatorAgent
-{
+public class ComparatorAgent {
     [ProtoMember(1)]
     public List<float> xCoordList;
 

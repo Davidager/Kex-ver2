@@ -6,8 +6,7 @@ using ProtoBuf;
 
 [Serializable]
 [ProtoContract]
-public class Configuration
-{
+public class Configuration {
     [ProtoMember(1)]
     public ComparatorAgent[] infAgentArray;
 

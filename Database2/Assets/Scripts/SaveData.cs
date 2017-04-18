@@ -15,24 +15,24 @@ public class SaveData
         exampleContainer.examples.Add(data);
     }
 
-    public static void save(string path, ExampleContainer examples)
+    public static void save(string path, DatabaseWrapper sortedExampleConfigurations)
     {
-        saveExamples(path, examples);
+        saveExamples(path, sortedExampleConfigurations);
     }
 
-    private static void saveExamples(string path, ExampleContainer examples)
+    private static void saveExamples(string path, DatabaseWrapper sortedExampleConfigurations)
     {
         //XmlSerializer serializer = new XmlSerializer(typeof(ExampleContainer));
         try
         {
             FileStream stream = new FileStream(path, FileMode.CreateNew);
-            Serializer.Serialize<ExampleContainer>(stream, examples);
+            Serializer.Serialize<DatabaseWrapper>(stream, sortedExampleConfigurations);
             stream.Close();
         }
         catch (IOException e)
         {
             FileStream stream = new FileStream(path, FileMode.Truncate);
-            Serializer.Serialize<ExampleContainer>(stream, examples);
+            Serializer.Serialize<DatabaseWrapper>(stream, sortedExampleConfigurations);
             stream.Close();
         }
 

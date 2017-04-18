@@ -52,18 +52,18 @@ public class Example {
             (jzCoord - currentizCoord) * (jzCoord - currentizCoord));
         float influencePj;
         //influencePj = (float)Math.Exp(-iSpeed * Math.Pow(distance, 2) / 0.05);
-        influencePj = (float)Math.Exp(-iSpeed * 25 * Math.Pow(0.012*distance, 2) / 4);
+        influencePj = (float)Math.Exp(-iSpeed * 25 * Math.Pow(distance, 2) / 4);
 
         float infFactor;
         bool jinfront = jInFrontofi(jxCoord, jzCoord);
         if (jinfront)
         {
             //infFactor = (float)Math.Exp(-1 * 0.1 * Math.Pow(distance, 2) / (2 * iSpeed));
-            infFactor = (float)Math.Exp(-1 *  Math.Pow(0.012 * distance, 2) / (2 * iSpeed * 25));
+            infFactor = (float)Math.Exp(-1 *  Math.Pow(distance, 2) / (2 * iSpeed * 25));
         }
         else
         {
-            infFactor = (float)Math.Exp(-iSpeed * 2 * 25 * Math.Pow(0.012 * distance, 2));
+            infFactor = (float)Math.Exp(-iSpeed * 2 * 25 * Math.Pow(distance, 2));
         }
 
         float infOut = influencePj * infFactor;

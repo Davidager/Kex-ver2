@@ -17,26 +17,170 @@ public class ReadText {
     private Dictionary<int, Spline> activeSplineTable;
     private Dictionary<int, Example> exampleTable;
     private ArrayList exampleInfluencesList;
-    private int exampleCounter;
-    public static ExampleContainer exampleContainer = new ExampleContainer();
-
+    private int exampleCounter;    
     public StringBuilder sb;
     public Transform CylinderPre;
     public ReadText()
     {
+        readFromFile("crowds_zara01_copy.txt", 9014);
+        Debug.Log(SaveData.exampleContainer.examples.Count);
+        readFromFile("crowds_zara02_copy.txt", 10518);
+        Debug.Log(SaveData.exampleContainer.examples.Count);
+        readFromFile("crowds_zara03_copy.txt", 7526);
+        Debug.Log(SaveData.exampleContainer.examples.Count);
+
+
+        string desktopPath = Environment.GetFolderPath(
+                         System.Environment.SpecialFolder.DesktopDirectory);
+
+        //string path = desktopPath + @"\MyTest.txt";
+        //File.WriteAllText(path, sb.ToString());
+        
+        string xmlPath = desktopPath + @"\database2.proto"; ;
+        Configuration[] exampleConfigurations = createExampleConfigurations(SaveData.exampleContainer);
+        Debug.Log(exampleConfigurations.Length);
+        DatabaseWrapper databaseWrapper = new DatabaseWrapper();
+        databaseWrapper.exampleConfigurations = exampleConfigurations;
+        databaseWrapper.sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
+        SaveData.save(xmlPath, databaseWrapper);
+    }
+
+    // för att skapa en sorts sortering av configs, listan har listor med configs som ska vara lika varandra. 
+    private List<BucketWrapper> setUpSortedExampleConfigurations(Configuration[] exampleConfigurations)
+    {
+        List<List<Configuration>> outerList = new List<List<Configuration>>();
+        System.Random rnd = new System.Random();
+        int numberOfConfigs = exampleConfigurations.Length;
+        List<int> randomNumberList = new List<int>();
+
+        while (randomNumberList.Count < 30)
+        {
+            int randomNum = rnd.Next(numberOfConfigs);
+            if (!randomNumberList.Contains(randomNum))
+            {
+                randomNumberList.Add(randomNum);
+            }
+        }
+
+        for (int i = 0; i < 30; i++)
+        {
+            outerList.Add(new List<Configuration>());
+            outerList[i].Add(exampleConfigurations[randomNumberList[i]]);
+        }
+
+        float maxVal;
+        float currentVal;
+        List<Configuration> insertList;
+        for (int i = 0; i < numberOfConfigs; i++)
+        {
+            if (!randomNumberList.Contains(i))
+            {
+                maxVal = 0;
+                insertList = new List<Configuration>();
+                foreach (List<Configuration> innerList in outerList)
+                {
+                    currentVal = MatchingFunctions.matchingFunction(exampleConfigurations[i], innerList[0]);
+                    if (currentVal > maxVal)
+                    {
+                        maxVal = currentVal;
+                        insertList = innerList;
+                    }
+                }
+                insertList.Add(exampleConfigurations[i]);
+
+            }
+        }
+        foreach (List<Configuration> innerList in outerList)
+        {
+            Debug.Log(innerList.Count);
+        }
+        List<BucketWrapper> returnList = new List<BucketWrapper>();
+        foreach (List<Configuration> bucket in outerList)
+        {
+            returnList.Add(new BucketWrapper(bucket));
+        }
+        return returnList;
+    }
+
+    private Configuration[] createExampleConfigurations(ExampleContainer exampleContainer)
+    {
+        Configuration[] returnArray = new Configuration[exampleContainer.examples.Count];
+        int i = 0;
+        foreach (ExampleData exampleData in exampleContainer.examples)
+        {
+            //raden under överflödig?
+            returnArray[i] = new Configuration();
+            returnArray[i].exampleNumber = i;
+            ComparatorAgent subAgent = new ComparatorAgent();
+            ComparatorAgent[] infAgentArray = new ComparatorAgent[exampleData.frames[0].jAgents.Count];
+            float[] influenceValues = new float[infAgentArray.Length];
+            /*int k = 0;
+             är vi säkra på att influenceValues är i samma ordning som influenceagents i databasen?
+            foreach (InfluenceValue infValue in exampleData.influenceValues)
+            {
+                influenceValues[k] = infValue.value;
+                k++;
+            }
+
+            for (int temp = 0; temp < infAgentArray.Length; temp++)
+            {
+                infAgentArray[temp] = new ComparatorAgent();
+            }
+            */
+            //7 raderna under istället för det ovan?
+            int k = 0;
+            foreach (InfluenceValue infValue in exampleData.influenceValues)
+            {
+                influenceValues[k] = infValue.value;
+                infAgentArray[k] = new ComparatorAgent();
+                k++;
+            }
+            foreach (FrameData frameData in exampleData.frames)
+            {
+                subAgent.addToTrajectory(frameData.subject.localPosition.x,
+                    frameData.subject.localPosition.y, frameData.subject.speed,
+                    frameData.subject.direction);
+                int j = 0;
+                foreach (AgentData jAgent in frameData.jAgents)
+                {
+                    infAgentArray[j].addToTrajectory(jAgent.localPosition.x,
+                        jAgent.localPosition.y, jAgent.speed, jAgent.direction);
+                    j++;
+                }
+
+            }
+
+
+            returnArray[i].subAgent = subAgent;
+            returnArray[i].infAgentArray = infAgentArray;
+            returnArray[i].influenceValues = influenceValues;
+            i++;
+        }
+        Debug.Log("Alla exampleconfigs skapade");
+        /*Debug.Log(returnArray.Length);
+        foreach (Configuration config in returnArray)
+        {
+            Debug.Log(config.infAgentArray.Length);
+        }*/
+        return returnArray;
+    }
+
+    private void readFromFile(String fileString, int numberOfFrames)
+    {
         string textContents;
         try
         {
-            using (StreamReader sr = new StreamReader("crowds_zara01_copy.txt"))
+            using (StreamReader sr = new StreamReader(fileString))
             {
                 textContents = sr.ReadToEnd();
-                               
+
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Debug.Log("Reading file failed: " + e);
-            return; 
-            
+            return;
+
             //return;
         }
 
@@ -73,8 +217,8 @@ public class ReadText {
                 string infoLine = myStringReader.ReadLine();  //infoline is the line with coord-info and frame number
                 string[] infoStringArray = infoLine.Split(' ');
                 // divided by 100 to fit the ground plane
-                coordArray[i] = ((float)Decimal.Parse(infoStringArray[0])) / 3.27f;  // x-coord
-                coordArray[i + 1] = ((float)Decimal.Parse(infoStringArray[1])) / 3.27f;  // z-coord
+                coordArray[i] = ((float)Decimal.Parse(infoStringArray[0])) / 100;  // x-coord
+                coordArray[i + 1] = ((float)Decimal.Parse(infoStringArray[1])) / 100;  // z-coord
 
                 int frameNumber = Decimal.ToInt32(Decimal.Parse(infoStringArray[2]));
                 coordArray[i + 2] = frameNumber;
@@ -86,7 +230,7 @@ public class ReadText {
             if (!firstFrameTable.ContainsKey(firstFrame))
             {
                 firstFrameTable.Add(firstFrame, new ArrayList());
-            } 
+            }
             firstFrameTable[firstFrame].Add(j);
 
             lastFrame = (int)coordArray[coordArray.Length - 2];
@@ -99,17 +243,8 @@ public class ReadText {
             splineArray[j] = (Spline)new Spline(this, j);
             splineArray[j].setCoordArray(coordArray);
         }
-        for(int i = 0; i < 9015; i++) //9015
-        nextFrame();
-
-        string desktopPath = Environment.GetFolderPath(
-                         System.Environment.SpecialFolder.DesktopDirectory);
-
-        string path = desktopPath + @"\MyTest.txt";
-        File.WriteAllText(path, sb.ToString());
-        
-        string xmlPath = desktopPath + @"\database2.proto"; ;
-        SaveData.save(xmlPath, SaveData.exampleContainer);
+        for (int i = 0; i < numberOfFrames + 1; i++) //9015
+            nextFrame();
     }
 
     private void nextFrame() 
@@ -206,3 +341,4 @@ public class ReadText {
     {
     }
 }
+

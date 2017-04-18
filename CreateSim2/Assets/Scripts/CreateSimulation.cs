@@ -51,13 +51,16 @@ public class CreateSimulation {
     private static int matchingIndex = new int();
     private static Dictionary<int, Agent> activeAgentTable;
     private static Configuration[] exampleConfigurations;
-    private static List<List<Configuration>> sortedExampleConfigurations;
+    private static List<BucketWrapper> sortedExampleConfigurations;
     private static Configuration currentQueryConfiguration = null;
 
-    public CreateSimulation(ExampleContainer exampleContainer)
+    public CreateSimulation(DatabaseWrapper dataBaseWrapper)
     {
-        exampleConfigurations = createExampleConfigurations(exampleContainer);
-        sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
+        //exampleConfigurations = createExampleConfigurations(exampleContainer);
+        //sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
+        exampleConfigurations = dataBaseWrapper.exampleConfigurations;
+        sortedExampleConfigurations = dataBaseWrapper.sortedExampleConfigurations;
+
 
         activeAgentTable = new Dictionary<int, Agent>();
         for (int i = 0; i < 12; i++)
@@ -214,8 +217,9 @@ public class CreateSimulation {
             //List<Configuration> maxBucket;
             SortedList<float, List<Configuration>> sortedBuckets = new SortedList<float, List<Configuration>>();
 
-            foreach (List<Configuration> innerList in sortedExampleConfigurations)
+            foreach (BucketWrapper bucketWrapper in sortedExampleConfigurations)
             {
+                List<Configuration> innerList = bucketWrapper.bucket;
                 float matchingValue = MatchingFunctions.matchingFunction(currentQueryConfiguration, innerList[0]);
                 /*if (matchingValue > maxBucketValue)
                 {
