@@ -9,10 +9,16 @@ public class SaveData
 {
 
     public static ExampleContainer exampleContainer = new ExampleContainer();
+    public static ExampleContainer noInfExamplecontainer = new ExampleContainer();
 
     public static void addExampleData(ExampleData data)
     {
         exampleContainer.examples.Add(data);
+    }
+
+    public static void addNoInfExampleData(ExampleData data)
+    {
+        noInfExamplecontainer.examples.Add(data);
     }
 
     public static void save(string path, DatabaseWrapper sortedExampleConfigurations)

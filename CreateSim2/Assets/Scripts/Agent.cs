@@ -55,6 +55,15 @@ public class Agent : MonoBehaviour
 
     }
 
+    public void addZeroMovement()
+    {
+        Debug.Log("zerod");
+        xCoordList.Add(xCoordList[0] + 0.1f* -1 * Mathf.Sin(directionList[0] - Mathf.PI / 2));
+        zCoordList.Add(zCoordList[0] + 0.1f * Mathf.Cos(directionList[0] - Mathf.PI / 2));
+        speedList.Add(speedList[0]);
+        directionList.Add(directionList[0]);
+    }
+
     void FixedUpdate ()
     {
 
@@ -81,16 +90,16 @@ public class Agent : MonoBehaviour
         speedList.Add(Random.Range(0.015f, 0.03f));
         //speedList.Add(Random.Range(0.60f, 0.80f));
         //directionList.Add(Random.Range(0f, 2 * Mathf.PI));
-        if (spawnCounter <= 2)
+        if (spawnCounter <= 4)
         {
             directionList.Add(0);
-            xCoordList.Add(-3f);
-            zCoordList.Add(-1.5f + (float)0.4*spawnCounter);
+            xCoordList.Add(-3f + (float)0.2*(spawnCounter-4f));
+            zCoordList.Add(0f + (float)0.4*spawnCounter);
         } else
         {
             directionList.Add(Mathf.PI);
             xCoordList.Add(3f + (float)0.2*(spawnCounter-6f));
-            zCoordList.Add(-1.5f + (float)0.4*spawnCounter - 3f);
+            zCoordList.Add(0f + (float)0.4*spawnCounter - 2f);
         }
         spawnCounter++;
     }

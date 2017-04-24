@@ -51,6 +51,7 @@ public class CreateSimulation {
     private static int matchingIndex = new int();
     private static Dictionary<int, Agent> activeAgentTable;
     private static Configuration[] exampleConfigurations;
+    private static Configuration[] noInfExampleConfigurations;
     private static List<BucketWrapper> sortedExampleConfigurations;
     private static Configuration currentQueryConfiguration = null;
 
@@ -60,10 +61,11 @@ public class CreateSimulation {
         //sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
         exampleConfigurations = dataBaseWrapper.exampleConfigurations;
         sortedExampleConfigurations = dataBaseWrapper.sortedExampleConfigurations;
-
+        noInfExampleConfigurations = dataBaseWrapper.noInfExampleConfigurations;
+        
 
         activeAgentTable = new Dictionary<int, Agent>();
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < 10  ; i++)
         {
             activeAgentTable.Add(i,(Agent)GameObject.Find("FullKTHsceneExport1").AddComponent(typeof(Agent)));
             activeAgentTable[i].setAgentNumber(i);
@@ -181,7 +183,56 @@ public class CreateSimulation {
 
         //Debug.Log(currentQueryConfiguration.infAgentArray.Length);
         if (currentQueryConfiguration.influenceValues.Length == 0) {
-            fillConfig(Agentq);
+            //fillConfig(Agentq);
+            Profiler.BeginSample("addWhen no inf");
+            System.Random rnd = new System.Random();
+            //float currentSpeed = currentQueryConfiguration.subAgent.speedList[0];
+            Profiler.BeginSample("binarysearch");
+            int index = Array.BinarySearch(noInfExampleConfigurations, currentQueryConfiguration);
+            Profiler.EndSample();
+            if (index < 0) index = ~index;
+            Debug.Log(index + " index");
+            Debug.Log(noInfExampleConfigurations[index].subAgent.speedList[0]);
+            Debug.Log(currentQueryConfiguration.subAgent.speedList[0]);
+
+
+            // Detta är till för att vi ska kunna få ett någorlunda slumpat index, så att inte det alltid blir samma som fås.
+            if (index < 5)
+            {
+                index = 6 + rnd.Next(8);
+                
+            } else if (index > noInfExampleConfigurations.Length - 5) {
+                index = noInfExampleConfigurations.Length - 20 + rnd.Next(8);
+            } else
+            {
+                index = index + rnd.Next(8) - 4;
+            }
+            
+            ComparatorAgent newExampleAgent = noInfExampleConfigurations[index].subAgent;
+            originDirection = currentQueryConfiguration.originDirection;
+            originVector = currentQueryConfiguration.newOrigin;
+
+
+            for (int temp = 1; temp < 40; temp++)
+            {
+                qPosition = new Vector2(newExampleAgent.xCoordList[temp], newExampleAgent.zCoordList[temp]);
+                qPosition = localToGlobalVector2(qPosition, originVector, originDirection);
+                /*Debug.Log(qPosition.x);
+                Debug.Log(qPosition.y);
+                Debug.Log(activeAgentTable[agentNumber].xCoordList[0]);
+                Debug.Log(activeAgentTable[agentNumber].zCoordList[0]);*/
+
+
+                /*activeAgentTable[agentNumber].xCoordList[temp] = qPosition.x;
+                activeAgentTable[agentNumber].zCoordList[temp] = qPosition.y;
+                activeAgentTable[agentNumber].speedList[temp] = agentqCopy.speedList[temp];
+                activeAgentTable[agentNumber].directionList[temp] = agentqCopy.directionList[temp];*/
+                activeAgentTable[agentNumber].addToTrajectory(qPosition.x, qPosition.y
+                    , newExampleAgent.speedList[temp], localToGlobalDirection(
+                        newExampleAgent.directionList[temp], originDirection));
+            }
+
+            Profiler.EndSample();
             // ISTÄLLET: GE DEN EN TRAJECTORY FRÅN DEM SOM INTE HAR NÅGRA INFLUENCES PÅ SIG I DATABASEN (FÖR SÅNA FINNS JU)
             //*Debug.Log("if fill grejen");
         }
@@ -301,19 +352,32 @@ public class CreateSimulation {
 
             if (Agentq.xCoordList.Count < 2)
             {
+                //Debug.Log(negativeMatchingIndexList.Count);
                 foreach (int confIndex in negativeMatchingIndexList)
                 {
-                    tempAff = MatchingFunctions.affinityFunction(currentQueryConfiguration.subAgent, currentQueryConfiguration.subAgent, exampleConfigurations[confIndex].subAgent);
-                    if (!affinityValueDic.ContainsKey(tempAff))
+                    tempAff = MatchingFunctions.affinityFunction(currentQueryConfiguration.subAgent, currentQueryConfiguration.subAgent, exampleConfigurations[confIndex].subAgent, false);
+                    /*if (!affinityValueDic.ContainsKey(tempAff))
                     { // tillagd 03/04
                         affinityValueList.Add(tempAff);
                         affinityValueDic.Add(tempAff, confIndex);
+                    }*/
+                    while (affinityValueDic.ContainsKey(tempAff))
+                    {
+                        tempAff = tempAff + 0.0001f;
                     }
+                    affinityValueList.Add(tempAff);
+                    affinityValueDic.Add(tempAff, confIndex);
                 }
                 affinityValueList.Sort();
                 //*Debug.Log("check2");
                                 
                 checkCollision(affinityValueList, affinityValueDic, agentNumber, false);
+                // LÄGGA TILL NÅGOT TYP "if (Agentq.xCoordList.Count < 2" igen för att kunna lägga till något ändå. ::
+                if(Agentq.xCoordList.Count < 2)
+                {
+                    Debug.Log("movesplineerror");
+                    //activeAgentTable[agentNumber].addZeroMovement();
+                }
             }
             Profiler.EndSample();
 
@@ -329,6 +393,7 @@ public class CreateSimulation {
 
     private static void checkCollision(List<float> valueList, Dictionary<float, int> indexDic, int agentNumber, bool matched)
     {
+        //Debug.Log(matched + " 123123");
         //*Debug.Log(valueList.Count);
         int i = valueList.Count - 1;
 
@@ -429,7 +494,7 @@ public class CreateSimulation {
             if (collision == false)
             {
                 //*Debug.Log(valueList[i]);
-                Debug.Log(matched);
+                //Debug.Log(matched);
                 if (matched) maxTemp = 40 * valueList[i];                // TODO: KOLLA HUR MÅNGA SOM ÄR MATCHED OCH HUR MÅNGA SOM INTE ÄR DET.
                 else maxTemp = 40;
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);

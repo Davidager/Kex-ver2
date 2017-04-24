@@ -64,7 +64,7 @@ public class MatchingFunctions{
             innerAffVals = new Dictionary<int, float>();
             for (int j = 0; j < comparator.infAgentArray.Length; j++)
             {
-                affValue = affinityFunction(query.subAgent, query.infAgentArray[k], comparator.infAgentArray[j]);
+                affValue = affinityFunction(query.subAgent, query.infAgentArray[k], comparator.infAgentArray[j], true);
                 innerAffVals.Add(j, affValue);               
             }
             outerAffVals.Add(k, innerAffVals);
@@ -156,7 +156,7 @@ public class MatchingFunctions{
 
     }
 
-    public static float affinityFunction(ComparatorAgent querySub, ComparatorAgent k, ComparatorAgent j)
+    public static float affinityFunction(ComparatorAgent querySub, ComparatorAgent k, ComparatorAgent j, bool first)
     {
         //FillConfig(k);
         //FillConfig(j);
@@ -208,10 +208,14 @@ public class MatchingFunctions{
         //Profiler.BeginSample("averagedelen");    // 0%
         Aff = Average(simVals);
         //Profiler.EndSample();
-        if (Aff < affinityCUTOFF)
+        if (first)
         {
-            Aff = 0;
+            if (Aff < affinityCUTOFF)
+            {
+                Aff = 0;
+            }
         }
+        
         //Debug.Log(Aff);
         return Aff;
 

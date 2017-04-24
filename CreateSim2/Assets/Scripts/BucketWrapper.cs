@@ -30,4 +30,7 @@ public class DatabaseWrapper
 
     [ProtoMember(2)]
     public Configuration[] exampleConfigurations;
+
+    [ProtoMember(3)]
+    public Configuration[] noInfExampleConfigurations;
 }

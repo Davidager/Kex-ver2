@@ -39,8 +39,14 @@ public class ReadText {
         string xmlPath = desktopPath + @"\database2.proto"; ;
         Configuration[] exampleConfigurations = createExampleConfigurations(SaveData.exampleContainer);
         Debug.Log(exampleConfigurations.Length);
+        Configuration[] noInfExampleConfigurations = createExampleConfigurations(SaveData.noInfExamplecontainer);
+        
+        Array.Sort(noInfExampleConfigurations);
+        
+        //Debug.Log(noInfExampleConfigurations.Length);
         DatabaseWrapper databaseWrapper = new DatabaseWrapper();
         databaseWrapper.exampleConfigurations = exampleConfigurations;
+        databaseWrapper.noInfExampleConfigurations = noInfExampleConfigurations;
         databaseWrapper.sortedExampleConfigurations = setUpSortedExampleConfigurations(exampleConfigurations);
         SaveData.save(xmlPath, databaseWrapper);
     }

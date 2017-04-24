@@ -6,7 +6,7 @@ using ProtoBuf;
 
 [Serializable]
 [ProtoContract]
-public class Configuration
+public class Configuration : IComparable
 {
     [ProtoMember(1)]
     public ComparatorAgent[] infAgentArray;
@@ -38,6 +38,16 @@ public class Configuration
     public Configuration()
     {
 
+    }
+
+    public int CompareTo(object obj)
+    {
+        if (obj == null) return 1;
+        Configuration otherConfiguration = obj as Configuration;
+        if (otherConfiguration != null)
+            return this.subAgent.speedList[0].CompareTo(otherConfiguration.subAgent.speedList[0]);
+        else
+            throw new ArgumentException("Object is not a Configuration");
     }
 
     private void calculateInfluences()

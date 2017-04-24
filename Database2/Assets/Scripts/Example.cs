@@ -242,6 +242,9 @@ public class Example {
         if (!(updatedData.influenceValues.Count==0))
         {
             SaveData.addExampleData(updatedData);
+        } else
+        {
+            SaveData.addNoInfExampleData(updatedData);
         }
         
     }
