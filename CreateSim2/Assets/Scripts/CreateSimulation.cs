@@ -166,6 +166,34 @@ public class CreateSimulation {
     }
 
     private static void updateTrajectory(Agent Agentq, int agentNumber){
+
+        /* För att se till att agenter fortsätter på typ den väg de följde förut innan de fick 
+         * en updaterad path från NegativeMatchingList så sparas deras senast matchade path, som vi försöker 
+         * lägga på till det inte blir kollision.*/
+        //Debug.Log("ths " + Agentq.lastMatchingFunctionList.Count);
+        float savedDirection = currentQueryConfiguration.originDirection;
+        if (Agentq.assignedUnmatchedPath) // Agentq.lastMatchingFunctionList.Count != 0 && 
+        {
+            Debug.Log("Kommer vi ghit?");
+
+            //savedDirection = currentQueryConfiguration.originDirection;
+            // Testar med den ursprungliga riktningen (den vi vill ha)
+            currentQueryConfiguration.originDirection = Agentq.lastDirection;
+            /*checkCollision(Agentq.lastMatchingFunctionList, Agentq.lastMatchingFunctionDic, agentNumber, true);
+            if (Agentq.xCoordList.Count >= 2)
+            {
+                Debug.Log("Test worked");
+                Agentq.assignedUnmatchedPath = false;
+                Agentq.lastMatchingFunctionList = new List<float>();
+                Agentq.lastMatchingFunctionDic = new Dictionary<float, int>();
+                Agentq.lastDirection = new float();
+                return;
+            } else
+            {
+                currentQueryConfiguration.originDirection = savedDirection;
+            }*/
+        }
+
         tempx = Agentq.xCoordList[0];
         Agentq.xCoordList = new List<float>();
         Agentq.xCoordList.Add(tempx);
@@ -191,15 +219,19 @@ public class CreateSimulation {
             int index = Array.BinarySearch(noInfExampleConfigurations, currentQueryConfiguration);
             Profiler.EndSample();
             if (index < 0) index = ~index;
-            Debug.Log(index + " index");
-            Debug.Log(noInfExampleConfigurations[index].subAgent.speedList[0]);
-            Debug.Log(currentQueryConfiguration.subAgent.speedList[0]);
+            //Debug.Log(index + " index");
+            if (index < 120)
+            {
+               // Debug.Log(noInfExampleConfigurations[index].subAgent.speedList[0]);
+                //Debug.Log(currentQueryConfiguration.subAgent.speedList[0]);
+            }
+
 
 
             // Detta är till för att vi ska kunna få ett någorlunda slumpat index, så att inte det alltid blir samma som fås.
-            if (index < 5)
+            if (index < 50)
             {
-                index = 6 + rnd.Next(8);
+                index = index + rnd.Next(100);
                 
             } else if (index > noInfExampleConfigurations.Length - 5) {
                 index = noInfExampleConfigurations.Length - 20 + rnd.Next(8);
@@ -350,9 +382,23 @@ public class CreateSimulation {
             //*Debug.Log("check1");
             checkCollision(matchingFunctionList, matchingFunctionDic, agentNumber, true);
 
+
             if (Agentq.xCoordList.Count < 2)
             {
-                //Debug.Log(negativeMatchingIndexList.Count);
+                // Återgår till vanliga riktningen om inte någon match har fåtts.
+                if (currentQueryConfiguration.originDirection != savedDirection) currentQueryConfiguration.originDirection = savedDirection;
+                // Sparar de senast matchade pathvalen, så att vi kan försöka med dessa senare igen 
+                // (för att agenten ska "verka ha ett mål", dvs att den återgår till att gå åt ungefär samma håll efter att den försökt undvika en kollision.
+                /*if(Agentq.lastMatchingFunctionList.Count != 0)
+                {
+                    Agentq.lastMatchingFunctionList = new List<float>();
+                    Agentq.lastMatchingFunctionList.Add(matchingFunctionList[0]);
+                    Agentq.lastMatchingFunctionDic = new Dictionary<float, int>();
+                    Agentq.lastMatchingFunctionDic.Add(matchingFunctionList[0], matchingFunctionDic[matchingFunctionList[0]]);
+                }*/
+
+                Debug.Log("alert");
+                Agentq.assignedUnmatchedPath = true;
                 foreach (int confIndex in negativeMatchingIndexList)
                 {
                     tempAff = MatchingFunctions.affinityFunction(currentQueryConfiguration.subAgent, currentQueryConfiguration.subAgent, exampleConfigurations[confIndex].subAgent, false);
@@ -378,8 +424,17 @@ public class CreateSimulation {
                     Debug.Log("movesplineerror");
                     //activeAgentTable[agentNumber].addZeroMovement();
                 }
+            } else if (Agentq.assignedUnmatchedPath)
+            {
+                Debug.Log("Test worked");
+                Agentq.assignedUnmatchedPath = false;
+                /*Agentq.lastMatchingFunctionList = new List<float>();
+                Agentq.lastMatchingFunctionDic = new Dictionary<float, int>();
+                Agentq.lastDirection = new float();*/
+                //return;
             }
-            Profiler.EndSample();
+            
+           Profiler.EndSample();
 
         }
        
@@ -520,6 +575,24 @@ public class CreateSimulation {
                 //Debug.Log(activeAgentTable[agentNumber].xCoordList.Count);
                 //*Debug.Log(i);
                 //Debug.Log(exampleConfigurations[indexDic[valueList[i]]].infAgentArray.Length);
+                
+
+                Agent Agentq = activeAgentTable[agentNumber];
+                if (matched)
+                {
+                    Agentq.lastDirection = currentQueryConfiguration.originDirection;
+                    Agentq.assignedUnmatchedPath = false;
+                }
+                /*if (matched || Agentq.lastMatchingFunctionList.Count != 0)
+                {
+                    Agentq.lastMatchingFunctionList = new List<float>();
+                    Agentq.lastMatchingFunctionList.Add(valueList[0]);
+                    Agentq.lastMatchingFunctionDic = new Dictionary<float, int>();
+                    Agentq.lastMatchingFunctionDic.Add(valueList[0], indexDic[valueList[0]]);
+                    Agentq.lastDirection = currentQueryConfiguration.originDirection;
+                }*/
+
+
                 break;
 
             }

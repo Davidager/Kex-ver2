@@ -18,6 +18,7 @@ public class ReadText {
     private Dictionary<int, Example> exampleTable;
     private ArrayList exampleInfluencesList;
     private int exampleCounter;    
+    private int numBuckets = 30;
     public StringBuilder sb;
     public Transform CylinderPre;
     public ReadText()
@@ -59,7 +60,7 @@ public class ReadText {
         int numberOfConfigs = exampleConfigurations.Length;
         List<int> randomNumberList = new List<int>();
 
-        while (randomNumberList.Count < 30)
+        while (randomNumberList.Count < numBuckets)    // 30 = number of buckets
         {
             int randomNum = rnd.Next(numberOfConfigs);
             if (!randomNumberList.Contains(randomNum))
@@ -68,7 +69,7 @@ public class ReadText {
             }
         }
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < numBuckets; i++)     // 30 = number of buckets
         {
             outerList.Add(new List<Configuration>());
             outerList[i].Add(exampleConfigurations[randomNumberList[i]]);

@@ -16,6 +16,11 @@ public class Agent : MonoBehaviour
     //private Transform noseTransform;
     private float noseRadius;
     private int agentNumber;
+    public bool assignedUnmatchedPath = false;
+    public List<float> lastMatchingFunctionList = new List<float>();
+    public Dictionary<float, int> lastMatchingFunctionDic = new Dictionary<float, int>();
+    public float lastDirection;
+
 
 
 
@@ -88,19 +93,37 @@ public class Agent : MonoBehaviour
 
 
         speedList.Add(Random.Range(0.015f, 0.03f));
+        //speedList.Add(0.005f);
         //speedList.Add(Random.Range(0.60f, 0.80f));
         //directionList.Add(Random.Range(0f, 2 * Mathf.PI));
-        if (spawnCounter <= 4)
+        System.Random random2 = new System.Random();
+        /*if (random2.Next(0,2) == 0)
         {
-            directionList.Add(0);
-            xCoordList.Add(-3f + (float)0.2*(spawnCounter-4f));
-            zCoordList.Add(0f + (float)0.4*spawnCounter);
+            directionList.Add(0f);
+            
         } else
         {
             directionList.Add(Mathf.PI);
-            xCoordList.Add(3f + (float)0.2*(spawnCounter-6f));
+            
+        }*/
+        
+
+        if (spawnCounter <= 4)
+        {
+            directionList.Add(0);
+            xCoordList.Add(-3f + (float)0.2*(spawnCounter-4f));  // 3f
+            zCoordList.Add(0f + (float)0.4*spawnCounter);
+        } else //if (spawnCounter <= 8)
+        {
+            directionList.Add(Mathf.PI);
+            xCoordList.Add(2f + (float)0.2*(spawnCounter-6f));
             zCoordList.Add(0f + (float)0.4*spawnCounter - 2f);
-        }
+        }/* else
+        {
+            directionList.Add(Mathf.PI);
+            xCoordList.Add(0f + (float)0.2 * (spawnCounter - 10f));
+            zCoordList.Add(0f + (float)0.4 * spawnCounter - 4f);
+        }*/
         spawnCounter++;
     }
     
